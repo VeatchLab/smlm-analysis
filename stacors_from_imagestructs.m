@@ -110,6 +110,7 @@ for i = 1:nimage
             else
                 error('invalad time edge correction method supplied')
             end
+	    time_edge_cor = time_edge_cor/(Dtau/frame_time);
                 
                 
             %time_edge_cor = (duration-tau)/duration;

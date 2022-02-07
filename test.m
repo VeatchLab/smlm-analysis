@@ -1,4 +1,7 @@
 %% Run stacors and stxcors on some data from Jenny
+clear stacors_from_imagestructs
+clear stxcors_from_imagestructs
+clear all
 
 datadir = '/lipid/group/data/Jenny/2021_09_03_CH27-CD4tmdGFP/PM-mEos3.2_Atto655-streptavidin/cell2'
 
@@ -24,7 +27,7 @@ oldres = load('testresults.mat');
 fprintf('Checking new results for equality with old ones by field\n');
 fn = fieldnames(oldres);
 for i = 1:numel(fn)
-    ndif = sum(newres.(fn{i})(:) ~=  oldres.(fn{i})(:));
+    ndif = sum(1e-15 < abs(1 - (newres.(fn{i})(:) ./ oldres.(fn{i})(:))));
     
     fprintf('%8s: %6d differences\n', fn{i}, ndif);
 end

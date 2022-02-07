@@ -27,9 +27,3 @@ Incidental features to potentially add:
 .Different kinds of mask
 .mask1 different from mask 2
 .More generalized arg handling to enable adding features later
-
-Plan:
-x1. Commit the most recent good versions
-2. Simple testing framework that just checks that you get the same result as the old code.
-3. Separate code that actually computes the correlation from the code that handles the input
-formats. Without changing the algo.

@@ -124,12 +124,13 @@ for i = 1:nimage
         if strcmp(how, 'uniform')
             time_edge_cor = time_edge_correction_unif(taubinedges, timevec);
         elseif strcmp(how, 'actual')
-            time_edge_cor = time_edge_correction(molinframe1, molinframe2, taubinedges, timevec);
+            time_edge_cor = time_edge_correction(molinframe1, molinframe2,...
+                                taubinedges, timevec, T);
         else
             error('invalid time edge correction method supplied')
         end
         % kluge until this is fixed in the time_edge_correction()s.
-        time_edge_cor = time_edge_cor/(Dtau/frame_time);
+        %time_edge_cor = time_edge_cor/(Dtau/frame_time);
         
         c(ii, :, :) = N./basic_normalization./time_edge_cor./edge_cor;
         
@@ -168,8 +169,21 @@ function w = wij(maskx, masky, dx, dy)
 w = polyarea(x,y);
 end
 
-function taufactor = time_edge_correction(Nperframe1, Nperframe2, tau, timevec)
+function taufactor = time_edge_correction(Nperframe1, Nperframe2, tau, ...
+                            timevec, timewin)
 % density corrected time edge correction
+tmax = numel(Nperframe1);
+
+% compare all sizes to the size of timevec to make sure they match
+tsz = size(timevec);
+if ~isequal(tsz, size(Nperframe1)) || ~isequal(tsz, size(Nperframe2))
+    error('time_edge_correction: size of Nperframe''s must match timevec');
+end
+
+% check validity of timewin argument
+if ~timewin_isvalid(timewin)
+    error('time_edge_correction: invalid time window provided');
+end
 
 timediffs = timevec - timevec';
 weights = Nperframe1.*Nperframe2';% is this direction right?
@@ -182,12 +196,12 @@ weights = Nperframe1.*Nperframe2';% is this direction right?
 %     end
 % end
 
-dt = tau(2)-tau(1);
+dtau = diff(tau);
 
 [~, ~, bin] = histcounts(timediffs, tau);
-inds = bin>0 & bin <= (tau(end)-tau(1))/dt;
-exptauperbin = accumarray(bin(inds), weights(inds)');
-taufactor = exptauperbin/mean(Nperframe1)/mean(Nperframe2)/numel(timevec);
+inds = bin>0; % & bin <= (tau(end)-tau(1))/dt;
+exptauperbin = accumarray(bin(inds), weights(inds)')./dtau(:);
+taufactor = exptauperbin*timewin_duration(timewin)/(sum(Nperframe1)*sum(Nperframe2));
 taufactor = taufactor';
 
 end

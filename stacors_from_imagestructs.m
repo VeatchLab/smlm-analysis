@@ -1,41 +1,50 @@
 function [c, errs, time_edge_cor, N, Norm] = stacors_from_imagestructs(is, r, tau, how)
 
+% 'actual' means use density-corrected time edge correction
 if nargin<4, how = 'actual'; end
-
 
 nimage = numel(is);
 nmask = sum(cellfun(@numel, {is.maskx}));
-%c = zeros(nmask, numel(r),numel(r));
-%errs = zeros(nmask, numel(r),numel(r));
-
 
 ii = 0;
+% produce a correlation function for each mask in the imagestruct
 for i = 1:nimage
 
+    % if data is linked, load it
     if ~isempty(is(i).data)
         data = is(i).data;
     else
         data = load(is(i).data_fname);
     end
-    
+
+    movienum = size(data.data{1}, 1);
     framespermovie = size(data.data{1}, 2);
+    nframes = numel(data.data{1});
+
+    % find the associated 'record', to access relevant metadata
     if isfield(is(i), 'record_fname')
         record_fname = is(i).record_fname;
     else
         [filepath, name, ex] = fileparts(is(i).data_fname);
         record_fname = [filepath '/record.mat'];
     end
-    
-    if ~strcmp(record_fname, 'UseDefaultTiming')
+
+    if strcmp(record_fname, 'UseDefaultTiming')
+        % 'UseDefaultTiming' means frames are all sequential and separated by 1
+        frame_time = 1;
+        frames = 1:nframes;
+        timevec = frames;
+        % timewindow matrix is just one interval
+        T = [timevec(1) - frame_time/2, timevec(end) + frame_time/2];
+    else
+        % Otherwise assemble timing data from the metadata that is
+        % loaded into record
         record = load(record_fname, 'metadata');
         
         mdata = record.metadata;
         frame_time = record.metadata.frame_time;
-        nframes = numel(data.data{1});
         frames = 1:nframes;
         
-        %framespermovie = size(data.data{1}, 2);
-        movienum = numel(data.data{1})/framespermovie;
         timevec = zeros(nframes, 1);
         moviei_start_time = zeros(movienum, 1);
 
@@ -52,19 +61,12 @@ for i = 1:nimage
             % add this movie's interval to the time window
             T(m,:) = [newtimes(1) - frame_time/2, newtimes(end) + frame_time/2];
         end
-        
-    else
-        frame_time = 1;
-        nframes = numel(data.data{1});
-        frames = 1:nframes;
-        timevec = frames;
     end
     
+    % do autocorrelation for each channel present in the data
     for channel=1:numel(data.data)
-        
         % put in correct time order
         d = reshape(data.data{channel}', 1, numel(data.data{channel}));
-        
         
         for j = 1:numel(is(i).maskx)
             ii = ii + 1;
@@ -102,8 +104,6 @@ for i = 1:nimage
             area_per_rbin = 2*pi*r'*Dr;
             time_per_tbin = Dtau;
             area = polyarea(maskx, masky);
-            %total_duration = timevec(frames(end))-timevec(frames(1));
-            %duration_excluding_gaps = frame_time*numel(timevec);
             duration_excluding_gaps = timewin_duration(T);
             
             density = numel(x)/area/duration_excluding_gaps;
@@ -111,37 +111,30 @@ for i = 1:nimage
             basic_normalization = duration_excluding_gaps*area*density*density*area_per_rbin*time_per_tbin;
             
             edge_cor = edge_correction(maskx, masky, r);
-            %time_edge_cor = time_edge_correction(molinframe, molinframe, taubinedges, timevec);
 
             if strcmp(how, 'uniform')
                 time_edge_cor = time_edge_correction_unif(taubinedges, timevec);
             elseif strcmp(how, 'actual')
                time_edge_cor = time_edge_correction(molinframe, molinframe, taubinedges, timevec);
             else
-                error('invalad time edge correction method supplied')
+                error('invalid time edge correction method supplied')
             end
-	    time_edge_cor = time_edge_cor/(Dtau/frame_time);
-                
-                
-            %time_edge_cor = (duration-tau)/duration;
-            %time_edge_cor
+            % kluge until this is fixed in the time_edge_correction()s.
+            time_edge_cor = time_edge_cor/(Dtau/frame_time);
             
             cc = N./basic_normalization./time_edge_cor./edge_cor;
             c{channel}(i, :, :) = cc;
             
             errs{channel}(i, :, :) = sqrt(N)./basic_normalization./time_edge_cor./edge_cor;
 
-	    Norm = basic_normalization.*time_edge_cor.*edge_cor;
-            
+            Norm = basic_normalization.*time_edge_cor.*edge_cor;
         end
-        
     end
 end
 end
 
-
 function correction = edge_correction(maskx, masky, r)
-
+% isotropic spatial edge correction
 area = polyarea(maskx, masky);
 
 % compute bin geometry
@@ -168,7 +161,7 @@ w = polyarea(x,y);
 end
 
 function taufactor = time_edge_correction(Nperframe1, Nperframe2, tau, timevec)
-
+% density corrected time edge correction
 tmax = numel(Nperframe1);
 
 timediffs = zeros(tmax*(tmax-1)/2, 1);
@@ -184,7 +177,7 @@ end
 
 dt = tau(2)-tau(1);
 
-[~, ~, bin] = histcounts(timediffs, [tau]);% tau(end)+2*dt]);
+[~, ~, bin] = histcounts(timediffs, tau);
 inds = bin>0 & bin <= tau(end)/dt + 1;
 exptauperbin = accumarray(bin(inds), weights(inds)');
 taufactor = exptauperbin/mean(Nperframe1)/mean(Nperframe2)/numel(timevec);

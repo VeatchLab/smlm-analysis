@@ -1,30 +1,31 @@
 function [c, errs, time_edge_cor, N, Norm]= stxcors_from_imagestructs(is, r, tau, how)
 
+% 'actual' means use density-corrected time edge correction
 if nargin<4, how = 'actual'; end
-
-
 
 nimage = numel(is);
 nmask = sum(cellfun(@numel, {is.maskx}));
-%c = zeros(nmask, numel(r));
-%errs = zeros(nmask, numel(r));
-
 
 ii = 0;
+% produce a correlation function for each mask in the imagestruct
 for i = 1:nimage
 
+    % if data is linked, load it
     if ~isempty(is(i).data)
         data = is(i).data;
     else
         data = load(is(i).data_fname);
     end
-    
+
+    movienum = size(data.data{1}, 1);
     framespermovie = size(data.data{1}, 2);
+    nframes = numel(data.data{1});
     
     % put in correct time order
     data.data{1} = reshape(data.data{1}', 1, numel(data.data{1}));
     data.data{2} = reshape(data.data{2}', 1, numel(data.data{2}));
     
+    % find the associated 'record', to access relevant metadata
     if isfield(is(i), 'record_fname')
         record_fname = is(i).record_fname;
     else
@@ -35,11 +36,8 @@ for i = 1:nimage
     
     mdata = record.metadata;
     frame_time = record.metadata.frame_time;
-    nframes = numel(data.data{1});
     frames = 1:nframes;
     
-    %framespermovie = size(data.data{1}, 2);
-    movienum = numel(data.data{1})/framespermovie;
     timevec = zeros(nframes, 1);
     moviei_start_time = zeros(movienum, 1);
 
@@ -114,7 +112,6 @@ for i = 1:nimage
         time_per_tbin = Dtau;
         area = polyarea(maskx, masky);
         total_duration = timevec(frames(end))-timevec(frames(1));
-        %duration_excluding_gaps = frame_time*numel(timevec);
         duration_excluding_gaps = timewin_duration(T);
         
         density1 = numel(x1)/area/duration_excluding_gaps;
@@ -123,22 +120,18 @@ for i = 1:nimage
         basic_normalization = duration_excluding_gaps*area*density1*density2*area_per_rbin*time_per_tbin;
         
         edge_cor = edge_correction(maskx, masky, r);
-        %time_edge_cor = time_edge_correction(molinframe1, molinframe2, taubinedges, timevec);
-        %time_edge_cor = (duration-tau)/duration;
         
         if strcmp(how, 'uniform')
             time_edge_cor = time_edge_correction_unif(taubinedges, timevec);
         elseif strcmp(how, 'actual')
             time_edge_cor = time_edge_correction(molinframe1, molinframe2, taubinedges, timevec);
         else
-            error('invalad time edge correction method supplied')
+            error('invalid time edge correction method supplied')
         end
-	time_edge_cor = time_edge_cor/(Dtau/frame_time);
-        
-        
+        % kluge until this is fixed in the time_edge_correction()s.
+        time_edge_cor = time_edge_cor/(Dtau/frame_time);
         
         c(ii, :, :) = N./basic_normalization./time_edge_cor./edge_cor;
-        
         
         errs(ii, :, :) = sqrt(N)./basic_normalization./time_edge_cor./edge_cor;
         
@@ -149,7 +142,7 @@ end
 
 
 function correction = edge_correction(maskx, masky, r)
-
+% isotropic spatial edge correction
 area = polyarea(maskx, masky);
 
 % compute bin geometry
@@ -176,8 +169,7 @@ w = polyarea(x,y);
 end
 
 function taufactor = time_edge_correction(Nperframe1, Nperframe2, tau, timevec)
-
-%tmax = numel(Nperframe1);
+% density corrected time edge correction
 
 timediffs = timevec - timevec';
 weights = Nperframe1.*Nperframe2';% is this direction right?
@@ -192,43 +184,13 @@ weights = Nperframe1.*Nperframe2';% is this direction right?
 
 dt = tau(2)-tau(1);
 
-[~, ~, bin] = histcounts(timediffs, tau);% tau(end)+2*dt]);
+[~, ~, bin] = histcounts(timediffs, tau);
 inds = bin>0 & bin <= (tau(end)-tau(1))/dt;
 exptauperbin = accumarray(bin(inds), weights(inds)');
 taufactor = exptauperbin/mean(Nperframe1)/mean(Nperframe2)/numel(timevec);
 taufactor = taufactor';
 
 end
-
-
-
-
-% 
-% 
-% function taufactor = time_edge_correction(Nperframe1, Nperframe2, tau, timevec)
-% 
-% tmax = numel(Nperframe1);
-% 
-% timediffs = zeros(tmax*(tmax-1)/2, 1);
-% weights = zeros(tmax*(tmax-1)/2, 1);
-% count = 1;
-% for i = 1:tmax-1
-%     for j = i:tmax
-%         timediffs(count) = timevec(j) - timevec(i);
-%         weights(count) = Nperframe1(i)*Nperframe2(j);
-%         count = count + 1;
-%     end
-% end
-% 
-% dt = tau(2)-tau(1);
-% 
-% [~, ~, bin] = histcounts(timediffs, [tau]);% tau(end)+dt]);
-% inds = bin>0 & bin <= tau(end)/dt + 1;
-% exptauperbin = accumarray(bin(inds), weights(inds)');
-% taufactor = exptauperbin/mean(Nperframe1)/mean(Nperframe2)/numel(timevec);
-% taufactor = taufactor';
-% 
-% end
 
 function taufactor = time_edge_correction_unif(tau, timevec)
 tmax = numel(timevec);
@@ -250,5 +212,3 @@ taufactor = exptauperbin/numel(timevec);
 taufactor = taufactor';
 
 end
-
-

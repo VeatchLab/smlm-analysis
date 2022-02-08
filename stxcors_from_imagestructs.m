@@ -42,10 +42,19 @@ for i = 1:nimage
     movienum = numel(data.data{1})/framespermovie;
     timevec = zeros(nframes, 1);
     moviei_start_time = zeros(movienum, 1);
+
+    % Initialize a timewindow matrix
+    T = zeros(0,2);
     for m = 1:movienum
         moviei_start_time(m) = 60 * 60 * 24 * rem(mdata(m).start_time, 1);
-        timevec((1:framespermovie) + (m - 1) * framespermovie) = frame_time * (1:framespermovie) + ...
+        newtimes = frame_time * (1:framespermovie) + ...
             (moviei_start_time(m) - moviei_start_time(1));
+
+        % set the new times in the timevec
+        timevec((1:framespermovie) + (m - 1) * framespermovie) = newtimes;
+
+        % add this movie's interval to the time window
+        T(m,:) = [newtimes(1) - frame_time/2, newtimes(end) + frame_time/2];
     end
 
     for j = 1:numel(is(i).maskx)
@@ -105,7 +114,8 @@ for i = 1:nimage
         time_per_tbin = Dtau;
         area = polyarea(maskx, masky);
         total_duration = timevec(frames(end))-timevec(frames(1));
-        duration_excluding_gaps = frame_time*numel(timevec);
+        %duration_excluding_gaps = frame_time*numel(timevec);
+        duration_excluding_gaps = timewin_duration(T);
         
         density1 = numel(x1)/area/duration_excluding_gaps;
         density2 = numel(x2)/area/duration_excluding_gaps;

@@ -44,8 +44,7 @@ function [g,errs,time_edge_cor,N,Norm] = spacetime_acor(x,y,t,tau,r,...
     if strcmp(how, 'uniform')
         time_edge_cor = time_edge_correction_unif(taubinedges, timevec);
     elseif strcmp(how, 'actual')
-       time_edge_cor = time_edge_correction_density(molinframe(:), molinframe(:),...
-                                taubinedges, timevec(:), T);
+        time_edge_cor = time_edge_correction_density(t,taubinedges,T);
     else
         error('invalid time edge correction method supplied')
     end

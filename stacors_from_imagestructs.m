@@ -90,7 +90,7 @@ for i = 1:nimage
             % call out to autocorrelation function calculation
             smask = struct('x', maskx, 'y', masky, 'type', 'polygon');
             [cc,ee,time_edge_cor, N, Norm] = spacetime_acor(x,y,t,...
-                                        tau,r,smask, T, how, timevec, molinframe);
+                                        tau,r,smask, T, how);
 
             c{channel}(i,:,:) = cc;
             errs{channel}(i,:,:) = ee;
@@ -99,23 +99,3 @@ for i = 1:nimage
 end
 end
 
-function taufactor = time_edge_correction_unif(tau, timevec)
-tmax = numel(timevec);
-timediffs = zeros(tmax*(tmax-1)/2, 1);
-count = 1;
-for i = 1:tmax-1
-    for j = i:tmax
-        timediffs(count) = timevec(j) - timevec(i);
-        count = count + 1;
-    end
-end
-
-dt = tau(2)-tau(1);
-
-[~, ~, bin] = histcounts(timediffs, [tau]);% tau(end)+2*dt]);
-inds = bin>0 & bin <= tau(end)/dt + 1;
-exptauperbin = accumarray(bin(inds), 1);
-taufactor = exptauperbin/numel(timevec);
-taufactor = taufactor';
-
-end

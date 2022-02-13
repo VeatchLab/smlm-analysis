@@ -1,5 +1,5 @@
 function [g,errs,time_edge_cor,N,Norm] = spacetime_acor(x,y,t,tau,r,...
-                            smask,tmask,how,timevec,molinframe)
+                            smask,tmask,how)
 % [G,ERR,TIME_EDGE_COR,N,NORM] = SPACETIME_ACOR(X,Y,T,TAU,R,SMASK,TMASK,...
 %                                    HOW,TIMEVEC,MOLINFRAME)
 %       space-time autocorrelation function of the points X,Y,T, at TAU and R
@@ -55,4 +55,3 @@ function [g,errs,time_edge_cor,N,Norm] = spacetime_acor(x,y,t,tau,r,...
 
     Norm = basic_normalization.*time_edge_cor.*edge_cor;
 end
-

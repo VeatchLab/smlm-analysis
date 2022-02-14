@@ -1,15 +1,19 @@
-function out = unpack_imagestruct(is)
+function out = unpack_imagestruct(is,which)
+
+if nargin < 2
+    which = 'default';
+end
 
 nimage = numel(is);
 
 % Handle case of multiple images
 % if there's more than one image, handle each one separately
 if nimage > 1
-    out = unpack_imagestruct(is(1));
+    out = unpack_imagestruct(is(1),which);
     [out(:).imageid] = deal(1);
     for i=2:nimage
         % each image may produce multiple outputs
-        iout = unpack_imagestruct(is(i));
+        iout = unpack_imagestruct(is(i),which);
         [iout(:).imageid] = deal(i);
         out = [out, iout];
     end
@@ -77,6 +81,20 @@ end
 for channel=1:numel(data.data)
     % put in correct time order
     d = reshape(data.data{channel}', 1, numel(data.data{channel}));
+
+    % default fields
+    fields = {'x', 'y', 't'};
+    if isfield(is.data.data{channel},'z')
+        fields = {fields, 'z'}
+    end
+    if iscell(which)
+        fields = [fields, which];
+    else % will be a special arg instead
+        switch which
+            case 'all'
+                fields = fieldnames(data.data{channel});
+        end
+    end
     
     for j = 1:numel(is.maskx)
         ii = ii + 1;
@@ -84,25 +102,30 @@ for channel=1:numel(data.data)
         maskx = is.maskx{j};
         masky = is.masky{j};
 
-        for f=1:numel(d)
-            ind = inpolygon(d(f).x,d(f).y, maskx, masky);
-            maskeddata(f).x = d(f).x(ind);
-            maskeddata(f).y = d(f).y(ind);
-            maskeddata(f).t = ones(size(d(f).x(ind)))*timevec(frames(f));
+        for k=1:numel(d)
+            ind = inpolygon(d(k).x,d(k).y, maskx, masky);
+            
+            for kk = 1:numel(fields)
+                f = fields{kk};
+                maskeddata(k).(f) = d(k).(f)(ind);
+            end
         end
-
-        x = [maskeddata(:).x];
-        y = [maskeddata(:).y];
-        t = [maskeddata(:).t];
         
         % Make struct for spatial mask
         smask = struct('x', maskx, 'y', masky, 'type', 'polygon');
 
         % desired fields:
         % x,y,t,spacewin,timewin,frame_time,timevec,channel,maskid
-        out(ii) = struct('x', x, 'y', y, 't', t, 'spacewin', smask, 'timewin', T,...
-            'channel', channel, 'maskid', j,...
-            'imageid', 1); % overwritten later if there is more than one
+        outdata = struct('spacewin', smask, 'timewin', T, 'channel', channel,...
+                        'maskid', j, 'imageid',1); % overwritten later if more than one
+
+        % bring in other requested fields
+        for k=1:numel(fields)
+            f = fields{k};
+            outdata.(f) = [maskeddata.(f)];
+        end
+
+        out(ii) = outdata;
     end
 end
 end

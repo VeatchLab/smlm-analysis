@@ -84,7 +84,7 @@ for channel=1:numel(data.data)
 
     % default fields
     fields = {'x', 'y', 't'};
-    if isfield(is.data.data{channel},'z')
+    if isfield(d,'z')
         fields = {fields, 'z'}
     end
     if iscell(which)
@@ -92,7 +92,7 @@ for channel=1:numel(data.data)
     else % will be a special arg instead
         switch which
             case 'all'
-                fields = fieldnames(data.data{channel});
+                fields = fieldnames(d);
         end
     end
     
@@ -107,7 +107,11 @@ for channel=1:numel(data.data)
             
             for kk = 1:numel(fields)
                 f = fields{kk};
-                maskeddata(k).(f) = d(k).(f)(ind);
+                if f=='t' % special case for time -- it is not included in the data
+                    maskeddata(k).(f) = ones([1, sum(ind)])*timevec(k);
+                else
+                    maskeddata(k).(f) = d(k).(f)(ind);
+                end
             end
         end
         

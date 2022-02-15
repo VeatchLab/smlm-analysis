@@ -92,7 +92,7 @@ for channel=1:numel(data.data)
     else % will be a special arg instead
         switch which
             case 'all'
-                fields = fieldnames(d);
+                fields = [{'t'}, fieldnames(d)];
         end
     end
     

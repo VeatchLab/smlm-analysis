@@ -27,7 +27,7 @@ dtau = diff(tau_edges);
 
 [~, ~, bin] = histcounts(timediffs, tau_edges);
 inds = bin>0;
-exptauperbin = accumarray(bin(inds), weights(inds)')./dtau(:);
+exptauperbin = accumarray(bin(inds), weights(inds)',[ntout,1])./dtau(:);
 
 norm = numel(t)^2 / timewin_duration(timewin);
 taufactor = exptauperbin'/norm;

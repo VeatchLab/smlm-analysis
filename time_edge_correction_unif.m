@@ -13,7 +13,7 @@ dt = tau(2)-tau(1);
 
 [~, ~, bin] = histcounts(timediffs, [tau]);% tau(end)+2*dt]);
 inds = bin>0 & bin <= tau(end)/dt + 1;
-exptauperbin = accumarray(bin(inds), 1);
+exptauperbin = accumarray(bin(inds), 1, [ntout,1]);
 taufactor = exptauperbin/numel(timevec);
 taufactor = taufactor';
 

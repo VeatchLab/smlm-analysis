@@ -12,9 +12,8 @@ else
     area = spacewin_area(W);
     wij = @(dx,dy) wij_poly(W,dx,dy)/area;
 end
-%
 
-ntheta = 30;
+ntheta = 60;
 thetas = pi*(1:ntheta)/ntheta; % only need 0 to pi because w_ij(theta + pi) = w_ij(theta)
 correction = zeros(size(r));
 for i = 1:numel(r)

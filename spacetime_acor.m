@@ -7,14 +7,14 @@ function [g,errs,time_edge_cor,N,Norm] = spacetime_acor(x,y,t,tau,r,...
 %       should assume uniform density or observed density in time. TIMEVEC and MOLINFRAME
 %       are used for the density-corrected (i.e. observed density) time-edge-correction.
 
-    if smask.type ~= 'polygon'
-        error('spacetime_acor: mask type not supported')
-    end
-
-    maskx = smask.x;
-    masky = smask.y;
-
     T = tmask;
+    
+    % check that the points are in the spatial window
+    ind = spacewin_isinside(x,y,smask);
+    if sum(ind) < numel(ind)
+        fprintf('spacetime_acor: removing %d points (%.0f %%) that were outside of the ROI\n', numel(ind) - sum(ind), 1 - sum(ind)/numel(ind));
+    end
+    x = x(ind); y = y(ind); t = t(ind);
 
     Dtau = tau(2)-tau(1);
     taubinedges = min(tau)-Dtau/2 : Dtau : max(tau)+Dtau/2;

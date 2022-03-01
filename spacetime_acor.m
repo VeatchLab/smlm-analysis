@@ -32,14 +32,14 @@ function [g,errs,time_edge_cor,N,Norm] = spacetime_acor(x,y,t,tau,r,...
     % basic normalization (no edge corrections)
     area_per_rbin = 2*pi*r'*Dr;
     time_per_tbin = Dtau;
-    area = polyarea(maskx, masky);
+    area = spacewin_area(smask);
     duration_excluding_gaps = timewin_duration(T);
     
     density = numel(x)/area/duration_excluding_gaps;
     
     basic_normalization = duration_excluding_gaps*area*density*density*area_per_rbin*time_per_tbin;
     
-    edge_cor = spatial_edge_correction(maskx, masky, r);
+    edge_cor = spatial_edge_correction(smask, r);
 
     if strcmp(how, 'uniform')
         time_edge_cor = time_edge_correction_unif(taubinedges, timevec);

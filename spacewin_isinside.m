@@ -3,7 +3,7 @@ function ind = spacewin_isinside(x,y,W)
 %       IND(i) is true if the point X(i), Y(i) is in the spatial window W,
 %       as specified by spacewin_isvalid(), and false otherwise.
 
-if ~isvalid(W)
+if ~spacewin_isvalid(W)
     error('spacewin_isinside: invalid spatial window provided');
 end
 
@@ -16,7 +16,7 @@ switch W.type
     case 'image'
         [r,c] = W.ref.worldToSubscript(x,y);
         i1 = ~isnan(r) & ~isnan(c);
-        j = sub2ind(size(win.im), r(i1),c(i1));
+        j = sub2ind(size(W.im), r(i1),c(i1));
         i2 = logical(W.im(j));
         ind = i1;
         ind(i1) = i2;

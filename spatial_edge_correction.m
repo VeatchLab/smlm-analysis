@@ -23,6 +23,7 @@ for i = 1:numel(r)
         correction(i) = correction(i) + wij(dx, dy)/ntheta;
     end
 end
+correction = correction(:);
 end
 
 function w = wij_poly(W, dx, dy)

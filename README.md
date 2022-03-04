@@ -7,7 +7,7 @@ addpath(genpath('src/'))
 2. Compile the necessary mex files in `src/closepairs`
 ```
 cd src/closepairs
-compile
+compile_closepairs
 ```
 
 

@@ -39,8 +39,7 @@ ylabel 'g(r, \tau)'
 
 %% Plot the estimated resolution as a function of tau, and report average resolution
 figure;
-errorbar(tau(1:end-1),corrdata.s,corrdata.confint);
+errorbar(tau(1:end-1),corrdata.s,corrdata.confint, 'o-');
 title(sprintf('Average resolution is %.1f nm ', corrdata.S))
-set(gca, 'XScale', 'log');
 xlabel '\tau (s)'
 ylabel 'resolution estimate (nm)'

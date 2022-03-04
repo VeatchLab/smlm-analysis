@@ -13,7 +13,7 @@ compile_closepairs
 # Method
 
 The PSF estimation method is described and validated in a paper at
-[arXiv:2202.08798 (physics.bio-ph)]https://arxiv.org/abs/2202.08798
+[arXiv:2202.08798 (physics.bio-ph)](https://arxiv.org/abs/2202.08798)
 # Example
 
 There is an example script in `src/example/example_NPC.m`, which applies the

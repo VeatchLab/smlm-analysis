@@ -4,7 +4,6 @@
 #include <string.h>
 #include <math.h>
 #include <stdint.h>
-#include <unistd.h>
 
 #define OK 0
 #define ERR_OVERFLOW 1

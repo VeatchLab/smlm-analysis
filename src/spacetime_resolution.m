@@ -32,7 +32,7 @@ taumax = timevec(end) - timevec(1);
 tau = frame_time:frame_time:taumax;
 
 [g_alltau, ~, time_edge_cor, counts_all, norm_all] = spacetime_acor(...
-                    x,y,t,tau,r,spacewin, timewin, 'actual');
+                    x,y,t,spacewin,timewin,r,tau);
 
 %% Choose larger tau bins if applicable
 
@@ -112,7 +112,7 @@ if params.Bootstrap
     s_resamp = zeros(8,numel(s));
     for i=1:8
         inds = datasample(1:npts, npts_sample, 'replace', false);
-        [~,~,~,countsi, normsi] = spacetime_acor(x(inds), y(inds),t(inds),tau,r,spacewin,timewin,'actual');
+        [~,~,~,countsi, normsi] = spacetime_acor(x(inds), y(inds),t(inds),spacewin,timewin,r,tau);
         [gi] = reaverage_grtau(countsi,normsi,bins);
         dg = gi(:,1:end-1) - gi(:,end);
         dg_norm = dg ./ dg(1,:);

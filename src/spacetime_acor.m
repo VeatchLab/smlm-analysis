@@ -1,30 +1,90 @@
-function [g,errs,time_edge_cor,N,Norm] = spacetime_acor(x,y,t,tau,r,...
-                            smask,tmask,how)
-% [G,ERR,TIME_EDGE_COR,N,NORM] = SPACETIME_ACOR(X,Y,T,TAU,R,SMASK,TMASK,HOW)
-%       space-time autocorrelation function of the points X,Y,T, at TAU and R
-%       separations in time and space respectively. HOW specifies whether time-edge-correction
-%       should assume uniform density or observed density in time.
+function [g,errs,time_edge_cor,N,Norm] = spacetime_acor(x,y,t,spacewin,timewin,r,tau,NmVal)
+% [G,ERR,TIME_EDGE_COR,N,NORM] = SPACETIME_ACOR(X,Y,T,SPACEWIN,TIMEWIN,R,TAU)
+%       space-time autocorrelation function of the points X,Y,T, at R and TAU
+%       separations in time and space respectively. SPACEWIN and TIMEWIN specify the
+%       spatial window (ROI) and temporal extent of the data, respectively.
+%       Note that R and TAU must be equally spaced (by DR and DTAU respectively) for
+%       computational reasons, and that in particular R(1) = DR/2, so that the lower
+%       edge of the first r bin is 0.
+%       SPACETIME_ACOR(X,Y,T,SPACEWIN,TIMEWIN,'REdges',R_Edges,'TauEdges',Tau_edges)
+%       instead of specifying bin centers R and TAU, the user may specify bin edges.
+%       Bins must still satisfy the same conditions as above (though that may be
+%       relaxed in a later release).
+%       SPACETIME_ACOR(_,'How', 'Actual')
+%       SPACETIME_ACOR(_,'How', 'Uniform') Optional argument 'How' specifies how to do
+%       the temporal edge correction, i.e. whether it should assume the observed density
+%       or a uniform density in time, respectively. 'Actual' is the default.
 
-    T = tmask;
-    
+arguments
+    x           (1,:)   double
+    y           (1,:)   double
+    t           (1,:)   double
+    spacewin    (1,1)   struct {spacewin_isvalid}
+    timewin     (:,2)   double {timewin_isvalid}
+    r           (1,:)   double = []
+    tau         (1,:)   double = []
+    NmVal.REdges    (1,:)   double = []
+    NmVal.TauEdges  (1,:)   double = []
+    NmVal.How       (1,:)   string = 'actual'
+end
+
+    % check that x,y, and t are same size
+    if ~isequal(size(x),size(y)) || ~isequal(size(x),size(t))
+        error('spacetime_acor: x,y and t must all be the same size')
+    end
+
     % check that the points are in the spatial window
-    ind = spacewin_isinside(x,y,smask);
+    ind = spacewin_isinside(x,y,spacewin);
     if sum(ind) < numel(ind)
         fprintf(['spacetime_acor: removing %d points (%.0f %%) that were ',...
             'outside of the ROI\n'], numel(ind) - sum(ind), 1 - sum(ind)/numel(ind));
     end
     x = x(ind); y = y(ind); t = t(ind);
 
-    Dtau = tau(2)-tau(1);
+    % Check that r and tau satisfy restrictions
+    rbinedges = NmVal.REdges;
+    if isempty(r) && isempty(rbinedges)
+        error('spacetime_acor: no r values were specified')
+    elseif isempty(r)
+        r = rbinedges(2:end) - diff(rbinedges)/2;
+    elseif isempty(rbinedges)
+        dr = r(2) - r(1);
+        rbinedges = [r - dr/2, r(end) + dr/2];
+    elseif ~isequal(r, rbinedges(2:end) - diff(rbinedges)/2)
+        error('spacetime_acor: incompatible r and REdges')
+    end
+
+    taubinedges = NmVal.TauEdges;
+    if isempty(tau) && isempty(taubinedges)
+        error('spacetime_acor: no tau values were specified')
+    elseif isempty(tau)
+        tau = taubinedges(2:end) - diff(taubinedges)/2;
+    elseif isempty(taubinedges)
+        dtau = tau(2) - tau(1);
+        taubinedges = [tau - dtau/2, tau(end) + dtau/2];
+    elseif ~isequal(tau, taubinedges(2:end) - diff(taubinedges)/2)
+        error('spacetime_acor: incompatible tau and TauEdges')
+    end
+        
+    difftau = diff(tau);
+    if (max(difftau) - min(difftau))/min(difftau) > 1e-13
+        error('spactime_acor: requested tau values must be equally spaced. Support for unequally spaced tau may be added in a future release.')
+    end
+    Dtau = difftau(1);
     taubinedges = min(tau)-Dtau/2 : Dtau : max(tau)+Dtau/2;
-    Dr = r(2)-r(1);
-    rbinedges = min(r)-Dr/2 : Dr : max(r)+Dr/2;
+
+    diffr = diff(r);
+    Dr = diffr(1);
+    if (max(diffr) - min(diffr))/min(diffr) > 1e-13 || abs((r(1) - Dr/2)/Dr) > 1e-13
+        error('spacetime_acor: requested r values must be equally spaced, and smallest r bin must start at 0. Support for unequally spaced r may be added in a future release.')
+    end
+    % clean them up
+    rbinedges = (0:numel(r))*Dr;
+    r = rbinedges(2:end) - Dr/2;
     
-    taumin = max(0,min(taubinedges));
+    taumin = min(taubinedges);
     taumax = max(taubinedges);
-    rmin = max(0, min(rbinedges));
     rmax = max(rbinedges);
-    noutmax = 2e8;
     
     % N is just the histogram of pairs, in r and tau bins
     N = closepairs_ts_binned(x,y,t, rmax, numel(r), taumin, taumax, numel(tau));
@@ -32,20 +92,21 @@ function [g,errs,time_edge_cor,N,Norm] = spacetime_acor(x,y,t,tau,r,...
     % basic normalization for area and density (no edge corrections)
     area_per_rbin = 2*pi*r'*Dr;
     time_per_tbin = Dtau;
-    area = spacewin_area(smask);
-    duration_excluding_gaps = timewin_duration(T);
+    area = spacewin_area(spacewin);
+    duration_excluding_gaps = timewin_duration(timewin);
     
     density = numel(x)/area/duration_excluding_gaps;
     
     basic_normalization = duration_excluding_gaps*area*density^2*area_per_rbin*time_per_tbin;
     
     % edge corrections: space first, then time
-    edge_cor = spatial_edge_correction(smask, r);
+    edge_cor = spatial_edge_correction(spacewin, r);
 
+    how = lower(NmVal.How);
     if strcmp(how, 'uniform')
         time_edge_cor = time_edge_correction_unif(taubinedges, timevec);
     elseif strcmp(how, 'actual')
-        time_edge_cor = time_edge_correction_density(t,taubinedges,T);
+        time_edge_cor = time_edge_correction_density(t,taubinedges,timewin);
     else
         error('invalid time edge correction method supplied')
     end

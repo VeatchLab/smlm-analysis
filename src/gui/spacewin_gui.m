@@ -3,7 +3,11 @@ arguments
     data (1,1) struct {mustHaveXYFields}
     params.PixelSize (1,1) double = 12
     params.Ref = []
+    params.FigHandle (1,1) logical = false;
 end
+
+% whether we are returning the window as output arg or giving buttons for saving
+show_save_btns = (nargout == 0) || (params.FigHandle);
 
 % set up the figure
 fig = figure('Name','Spatial Window gui');
@@ -52,32 +56,54 @@ handles.type_label = uicontrol(handles.lpanel, 'Style', 'text', ...
 handles.type_menu = uicontrol(handles.lpanel, 'Style', 'popupmenu',...
     'String',{'polyshape', 'image', 'polygon'}, 'Value', 2);
 
-handles.varname_label = uicontrol(handles.lpanel, 'Style', 'text', ...
-    'String', 'var name for saving');
-handles.varname_edit = uicontrol(handles.lpanel, 'Style', 'edit', ...
-    'String', 'spacewin');
-handles.saveasvarbtn = uicontrol(handles.lpanel, 'Style', 'pushbutton',...
-    'String', 'Save to base workspace', 'Callback', @savetoworkspace);
-
-handles.fname_label = uicontrol(handles.lpanel, 'Style', 'text', ...
-    'String', 'file name for saving');
-handles.fname_edit = uicontrol(handles.lpanel, 'Style', 'edit', ...
-    'String', 'window.mat');
-handles.saveasfilebtn = uicontrol(handles.lpanel, 'Style', 'pushbutton',...
-    'String', 'Save to file', 'Callback', @savetomatfile);
-
 handles.lpanel_uic_list = {'addbtn', 'rmbtn', 'break',...
-    'type_label','type_menu','varname_label', 'varname_edit', 'saveasvarbtn',...
-    'fname_label', 'fname_edit', 'saveasfilebtn'};
+    'type_label','type_menu'};
+
+if show_save_btns
+    handles.varname_label = uicontrol(handles.lpanel, 'Style', 'text', ...
+        'String', 'var name for saving');
+    handles.varname_edit = uicontrol(handles.lpanel, 'Style', 'edit', ...
+        'String', 'spacewin');
+    handles.saveasvarbtn = uicontrol(handles.lpanel, 'Style', 'pushbutton',...
+        'String', 'Save to base workspace', 'Callback', @savetoworkspace);
+
+    handles.fname_label = uicontrol(handles.lpanel, 'Style', 'text', ...
+        'String', 'file name for saving');
+    handles.fname_edit = uicontrol(handles.lpanel, 'Style', 'edit', ...
+        'String', 'window.mat');
+    handles.saveasfilebtn = uicontrol(handles.lpanel, 'Style', 'pushbutton',...
+        'String', 'Save to file', 'Callback', @savetomatfile);
+
+    handles.lpanel_uic_list = [handles.lpanel_uic_list,...
+        {'varname_label', 'varname_edit', 'saveasvarbtn',...
+        'fname_label', 'fname_edit', 'saveasfilebtn'}];
+else
+    handles.close_btn = uicontrol(handles.lpanel, 'Style', 'pushbutton',...
+        'String', 'Close and return spacewin', 'Callback', @(h,e) set(h, 'UserData', true));
+    handles.lpanel_uic_list = [handles.lpanel_uic_list,{'break','close_btn'}];
+    % make it so closing the window also returns the spacewin
+    fig.CloseRequestFcn = @(h,e) set(getfield(guidata(h), 'close_btn'), 'UserData', true);
+end
+
 guidata(fig, handles);
 
 pos = fig.Position;
 pos = pos + [0 -1 1 1]*5;
 set(fig,'Position',pos); % this triggers resizecallback which sets up the correct uicontrol Positions
 
-% return figure handle if requested
+% return figure handle if requested, or spatial window otherwise
 if nargout > 0
-    varargout = {fig};
+    if params.FigHandle
+        varargout = {fig};
+    else
+        fprintf('Note: command line will be unavailable until you press "close and return"\n');
+        waitfor(handles.close_btn, 'UserData', true);
+        types = handles.type_menu.String;
+        type = types{handles.type_menu.Value};
+        spacewin = polyshape_to_spacewin(handles.p, type, handles.ref);
+        varargout = {spacewin};
+        delete(fig);
+    end
 end
 
 % HELPER FUNCTIONS (mostly callbacks)

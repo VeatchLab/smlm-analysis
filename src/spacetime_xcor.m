@@ -11,8 +11,9 @@
 % You should have received a copy of the GNU General Public License
 % along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
 
-function [g,errs,time_edge_cor,N,Norm] = spacetime_acor(x,y,t,spacewin,timewin,r,tau,NmVal)
-% [G,ERR,TIME_EDGE_COR,N,NORM] = SPACETIME_ACOR(X,Y,T,SPACEWIN,TIMEWIN,R,TAU)
+function [g,errs,time_edge_cor,N,Norm] = spacetime_xcor(x1,y1,t1,x2,y2,t2,spacewin,timewin,...
+                                     r,tau,NmVal)
+% [G,ERR,TIME_EDGE_COR,N,NORM] = SPACETIME_XCOR(X1,Y1,T1,SPACEWIN,TIMEWIN,R,TAU)
 %       space-time autocorrelation function of the points X,Y,T, at R and TAU
 %       separations in time and space respectively. SPACEWIN and TIMEWIN specify the
 %       spatial window (ROI) and temporal extent of the data, respectively.
@@ -29,9 +30,12 @@ function [g,errs,time_edge_cor,N,Norm] = spacetime_acor(x,y,t,spacewin,timewin,r
 %       or a uniform density in time, respectively. 'Actual' is the default.
 
 arguments
-    x           (1,:)   double
-    y           (1,:)   double
-    t           (1,:)   double
+    x1          (1,:)   double
+    y1          (1,:)   double
+    t1          (1,:)   double
+    x2          (1,:)   double
+    y2          (1,:)   double
+    t2          (1,:)   double
     spacewin    (1,1)   struct {spacewin_isvalid}
     timewin     (:,2)   double {timewin_isvalid}
     r           (1,:)   double = []
@@ -42,17 +46,24 @@ arguments
 end
 
     % check that x,y, and t are same size
-    if ~isequal(size(x),size(y)) || ~isequal(size(x),size(t))
+    if ~isequal(size(x1),size(y1)) || ~isequal(size(x1),size(t1)) || ...
+        ~isequal(size(x2),size(y2)) || ~isequal(size(x2),size(t2))
         error('spacetime_acor: x,y and t must all be the same size')
     end
 
     % check that the points are in the spatial window
-    ind = spacewin_isinside(x,y,spacewin);
+    ind = spacewin_isinside(x1,y1,spacewin);
     if sum(ind) < numel(ind)
         fprintf(['spacetime_acor: removing %d points (%.0f %%) that were ',...
-            'outside of the ROI\n'], numel(ind) - sum(ind), 1 - sum(ind)/numel(ind));
+            'outside of the ROI\n'], numel(ind) - sum(ind), (1 - sum(ind)/numel(ind))*100);
     end
-    x = x(ind); y = y(ind); t = t(ind);
+    x1 = x1(ind); y1 = y1(ind); t1 = t1(ind);
+    ind = spacewin_isinside(x2,y2,spacewin);
+    if sum(ind) < numel(ind)
+        fprintf(['spacetime_acor: removing %d points (%.0f %%) that were ',...
+            'outside of the ROI\n'], numel(ind) - sum(ind), (1 - sum(ind)/numel(ind))*100);
+    end
+    x2 = x2(ind); y2 = y2(ind); t2 = t2(ind);
 
     % Check that r and tau satisfy restrictions
     rbinedges = NmVal.REdges;
@@ -100,7 +111,7 @@ end
     rmax = max(rbinedges);
     
     % N is just the histogram of pairs, in r and tau bins
-    N = closepairs_st_binned(x,y,t, rmax, numel(r), taumin, taumax, numel(tau));
+    N = crosspairs_st_binned(x1,y1,t1, x2,y2,t2, rmax, numel(r), taumin, taumax, numel(tau));
     
     % basic normalization for area and density (no edge corrections)
     area_per_rbin = 2*pi*r'*Dr;
@@ -108,9 +119,10 @@ end
     area = spacewin_area(spacewin);
     duration_excluding_gaps = timewin_duration(timewin);
     
-    density = numel(x)/area/duration_excluding_gaps;
+    density1 = numel(x1)/area/duration_excluding_gaps;
+    density2 = numel(x2)/area/duration_excluding_gaps;
     
-    basic_normalization = duration_excluding_gaps*area*density^2*area_per_rbin*time_per_tbin;
+    basic_normalization = duration_excluding_gaps*area*density1*density2*area_per_rbin*time_per_tbin;
     
     % edge corrections: space first, then time
     edge_cor = spatial_edge_correction(spacewin, r);
@@ -119,7 +131,7 @@ end
     if strcmp(how, 'uniform')
         time_edge_cor = time_edge_correction_unif(taubinedges, timevec);
     elseif strcmp(how, 'actual')
-        time_edge_cor = time_edge_correction_density(t,taubinedges,timewin);
+        time_edge_cor = time_edge_correction_density_cross(t1,t2,taubinedges,timewin);
     else
         error('invalid time edge correction method supplied')
     end

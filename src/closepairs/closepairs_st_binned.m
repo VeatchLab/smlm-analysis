@@ -11,19 +11,36 @@
 % You should have received a copy of the GNU General Public License
 % along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
 
-function [counts] = crosspairs_ts_binned(x1, y1, t1, x2, y2, t2, ...
-        rmax, nrout, taumin, taumax, ntout)
+function [counts] = closepairs_st_binned(x, y, t, rmax, nrout, taumin, taumax, ntout)
 
-% Sort based on x
-[x1, s1] = sort(x1(:));
-[x2, s2] = sort(x2(:));
+ind = sortbywhich(x,y, rmax, t, taumin, taumax);
+switch ind
+    case 1
+        % Sort based on x
+        [x, s] = sort(x(:));
+        
+        t = t(s);
+        y = y(s);
+        sortbyt = uint64(0);
+    case 2
+        % Sort based on y (and swap x and y)
+        tmp = y;
+        y = x;
+        x = tmp;
+        [x, s] = sort(x(:));
+        
+        t = t(s);
+        y = y(s);
+        sortbyt = uint64(0);
+    case 3
+        % Sort based on t
+        [x, s] = sort(x(:));
+        
+        t = t(s);
+        y = y(s);
+        sortbyt = uint64(0);
+end
 
-t1 = t1(s1);
-y1 = y1(s1);
-t2 = t2(s2);
-y2 = y2(s2);
-
-[counts] = Fcrosspairs_ts_binned(x1,y1,t1, x2, y2, t2,...
-                                    rmax, uint64(nrout), taumin, taumax, uint64(ntout));
+[counts] = Fclosepairs_st_binned(x,y,t, rmax, uint64(nrout), taumin, taumax, uint64(ntout),sortbyt);
 
 counts = double(counts);

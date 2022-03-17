@@ -28,13 +28,16 @@ Licence : GNU Public Licence >= 2
 #include <string.h>
 #include <math.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #define OK 0
 #define ERR_OVERFLOW 1
 
 double sqrt();
+extern bool utIsInterruptPending();
 
-void Fcrosspairs_ts_binned(n1, x1, y1, t1, n2, x2, y2, t2, rmax, nrout, taumin, taumax, ntout,
+/* this one is for inputs ordered by x (hence _st_ for space-time) */
+void Fcrosspairs_st_binned(n1, x1, y1, t1, n2, x2, y2, t2, rmax, nrout, taumin, taumax, ntout,
         counts)
      /* inputs */
      int n1, n2;
@@ -58,6 +61,8 @@ void Fcrosspairs_ts_binned(n1, x1, y1, t1, n2, x2, y2, t2, rmax, nrout, taumin, 
   i = 0;
   
   for(; i < n1; i++) {
+      /* check interrupt (CTRL-C) status every 1024 pts and abort if pending */
+      if ( (!(i & 0x3ff)) && utIsInterruptPending() ) break;
       
       x1i = x1[i];
       y1i = y1[i];
@@ -76,18 +81,78 @@ void Fcrosspairs_ts_binned(n1, x1, y1, t1, n2, x2, y2, t2, rmax, nrout, taumin, 
 
         tau = t2[j] - t1i;
 
-        k = (int) ((tau - taumin)/dt);
-        if (k > ntout || k < 0)
+        k = floor((tau - taumin)/dt);
+        if (k >= ntout || k < 0)
             continue;
 
         dx2 = dx * dx;
         /* check spatial constraint */
-        if (dx2 < r2max) {
+        dy = y2[j] - y1i;
+        d2 = dx2 + dy * dy;
+        if(d2 < r2max) {
+          /* add this (i, j) pair to output */
+          d = sqrt(d2);
+          counts[k*nrout + ((int) (d/dr))] += 1;
+        }
+      }
+  }
+}
+
+/* this one is ordered by t (hence _ts_ for time-space) */
+void Fcrosspairs_ts_binned(n1, x1, y1, t1, n2, x2, y2, t2, rmax, nrout, taumin, taumax, ntout,
+        counts)
+     /* inputs */
+     int n1, n2;
+     double *x1, *y1, *x2, *y2, rmax, *t1, *t2, taumin, taumax;
+     /* outputs */
+     int nrout, ntout;
+     uint64_t *counts;
+{
+  int k, i, j, jfirst; /* note points are ordered by t */
+  double x1i, y1i, t1i, r2max, tfirst, dx, dy, dx2, d2, dt, dr, d, tau;
+ 
+  r2max = rmax * rmax;
+  dt = (taumax - taumin)/((double) ntout);
+  dr = rmax / ((double) nrout);
+ 
+  if(n1 == 0 || n2 == 0) 
+    return;
+
+  jfirst = 0;
+  
+  i = 0;
+  
+  for(; i < n1; i++) {
+      /* check interrupt (CTRL-C) status every 1024 pts and abort if pending */
+      if ( (!(i & 0x3ff)) && utIsInterruptPending() ) break;
+      
+      x1i = x1[i];
+      y1i = y1[i];
+      t1i = t1[i];
+
+      /* adjust starting position jfirst */
+      tfirst = t1i + taumin;
+      while((t2[jfirst] < tfirst) && (jfirst + 1 < n2))
+        ++jfirst;
+
+      /* process from j=jfirst until dx > rmax */
+      for(j=jfirst; j < n2; j++) {
+        tau = t2[j] - t1i;
+        if (tau >= taumax)
+            break;
+
+        dx = x2[j] - x1i;
+
+        /* check spatial constraint */
+        if (dx < rmax) {
+          dx2 = dx * dx;
           dy = y2[j] - y1i;
           d2 = dx2 + dy * dy;
           if(d2 < r2max) {
             /* add this (i, j) pair to output */
             d = sqrt(d2);
+            k = floor((tau - taumin)/dt);
+
             counts[k*nrout + ((int) (d/dr))] += 1;
           }
         }  
@@ -101,7 +166,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     double *x1, *y1, *t1, *x2, *y2, *t2;
     double rmax, taumin, taumax;
     uint64_t *counts, *counts_allr;
-    int nrout, ntout, *tmp;
+    int nrout, ntout, *tmp, sortbyt;
     int i;
 
     /* RHS args are:
@@ -116,6 +181,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
      *  8   taumin
      *  9   taumax
      * 10   ntout
+     * 11   sortbyt = 0 for space, 1 for time
      */
 
     /* LHS args are:
@@ -146,14 +212,20 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 
     tmp = (int *) mxGetPr(prhs[10]);
     ntout = *tmp;
+    tmp = (int *) mxGetPr(prhs[11]);
+    sortbyt = *tmp;
 
     plhs[0] = mxCreateNumericMatrix(nrout, ntout, mxUINT64_CLASS, mxREAL);
 
     counts = (uint64_t *) mxGetPr(plhs[0]);
 
-    Fcrosspairs_ts_binned(n1, x1, y1, t1, n2, x2, y2, t2,
-            rmax, nrout, taumin, taumax, ntout,
-            counts);
+    if (sortbyt) {
+        Fcrosspairs_ts_binned(n1, x1, y1, t1, n2, x2, y2, t2,
+                rmax, nrout, taumin, taumax, ntout, counts);
+    } else {
+        Fcrosspairs_st_binned(n1, x1, y1, t1, n2, x2, y2, t2,
+                rmax, nrout, taumin, taumax, ntout, counts);
+    }
 
     return;
 }

@@ -45,6 +45,70 @@ void Fclosepairs_ts_binned(n, x, y, t, rmax, nrout, taumin, taumax, ntout,
      int nrout, ntout;
      uint64_t *counts;
 {
+  int k, i, j, jfirst; /* note points are ordered by t, not x */
+  double xi, yi, ti, r2max, tfirst, dx, dy, dx2, d2, dt, dr, d, tau;
+ 
+  r2max = rmax * rmax;
+  dt = (taumax - taumin)/((double) ntout);
+  dr = rmax / ((double) nrout);
+ 
+  if(n == 0) 
+    return;
+
+  jfirst = 0;
+  
+  i = 0;
+  
+  for(; i < n; i++) {
+      /* check interrupt (CTRL-C) status every 1024 pts and abort if pending */
+      if ( (!(i & 0x3ff)) && utIsInterruptPending() ) break;
+      
+      xi = x[i];
+      yi = y[i];
+      ti = t[i];
+
+      /* adjust starting position jfirst */
+      tfirst = ti + taumin;
+      while((t[jfirst] < tfirst) && (jfirst + 1 < n)) /* +1 is because we are going to add 1 if true */
+        ++jfirst;
+
+      /* process from j=jfirst until dx > rmax */
+      for(j=jfirst; j < n; j++) {
+        if (j==i)
+          continue; /* skip the i,i pair */
+
+
+        tau = t[j] - ti;
+        if (tau >= taumax)
+            break;
+
+        dx = x[j] - xi;
+        /* check spatial constraint */
+        if (dx < rmax) {
+          dx2 = dx * dx;
+          dy = y[j] - yi;
+          d2 = dx2 + dy * dy;
+          if(d2 < r2max) {
+            /* add this (i, j) pair to output */
+            d = sqrt(d2);
+
+            k = floor((tau - taumin)/dt);
+            counts[k*nrout + ((int) (d/dr))] += 1;
+          }
+        }  
+      }
+  }
+}
+
+void Fclosepairs_st_binned(n, x, y, t, rmax, nrout, taumin, taumax, ntout,
+        counts)
+     /* inputs */
+     int n;
+     double *x, *y, rmax, *t, taumin, taumax;
+     /* outputs */
+     int nrout, ntout;
+     uint64_t *counts;
+{
   int k, i, j, jfirst; /* note points are ordered by x, not t */
   double xi, yi, ti, r2max, xfirst, dx, dy, dx2, d2, dt, dr, d, tau;
  
@@ -60,8 +124,8 @@ void Fclosepairs_ts_binned(n, x, y, t, rmax, nrout, taumin, taumax, ntout,
   i = 0;
   
   for(; i < n; i++) {
-      /* check interrupt (CTRL-C) status every 1000 pts and abort if pending */
-      if ( (!(i%1000)) && utIsInterruptPending() ) break;
+      /* check interrupt (CTRL-C) status every 1024 pts and abort if pending */
+      if ( (!(i & 0x3ff)) && utIsInterruptPending() ) break;
       
       xi = x[i];
       yi = y[i];
@@ -74,6 +138,9 @@ void Fclosepairs_ts_binned(n, x, y, t, rmax, nrout, taumin, taumax, ntout,
 
       /* process from j=jfirst until dx > rmax */
       for(j=jfirst; j < n; j++) {
+        if (j==i)
+          continue; /* skip the i,i pair */
+
         dx = x[j] - xi;
         if (dx >= rmax)
           break;
@@ -86,15 +153,13 @@ void Fclosepairs_ts_binned(n, x, y, t, rmax, nrout, taumin, taumax, ntout,
 
         dx2 = dx * dx;
         /* check spatial constraint */
-        if (dx2 < r2max) {
-          dy = y[j] - yi;
-          d2 = dx2 + dy * dy;
-          if(d2 < r2max) {
-            /* add this (i, j) pair to output */
-            d = sqrt(d2);
-            counts[k*nrout + ((int) (d/dr))] += 1;
-          }
-        }  
+        dy = y[j] - yi;
+        d2 = dx2 + dy * dy;
+        if(d2 < r2max) {
+          /* add this (i, j) pair to output */
+          d = sqrt(d2);
+          counts[k*nrout + ((int) (d/dr))] += 1;
+        }
       }
   }
 }
@@ -105,7 +170,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
     double *x, *y, *t;
     double rmax, taumin, taumax;
     uint64_t *counts;
-    int nrout, ntout, *tmp;
+    int nrout, ntout, *tmp, sortbyt;
     int i;
 
     /* RHS args are:
@@ -117,6 +182,7 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
      *  5   taumin
      *  6   taumax
      *  7   ntout
+     *  8   sortbyt
      */
 
     /* LHS args are:
@@ -143,13 +209,20 @@ void mexFunction(int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[])
 
     tmp = (int *) mxGetPr(prhs[7]);
     ntout = *tmp;
+    tmp = (int *) mxGetPr(prhs[8]);
+    sortbyt = *tmp;
 
     plhs[0] = mxCreateNumericMatrix(nrout, ntout, mxUINT64_CLASS, mxREAL);
 
     counts = (uint64_t *) mxGetPr(plhs[0]);
 
-    Fclosepairs_ts_binned(n, x, y, t, rmax, nrout, taumin, taumax, ntout,
-            counts);
+    if (sortbyt) {
+        Fclosepairs_ts_binned(n, x, y, t, rmax, nrout, taumin, taumax, ntout,
+                counts);
+    } else {
+        Fclosepairs_st_binned(n, x, y, t, rmax, nrout, taumin, taumax, ntout,
+                counts);
+    }
 
     return;
 }

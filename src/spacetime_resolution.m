@@ -12,10 +12,25 @@
 % along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
 
 function [out, params] = spacetime_resolution(varargin)
-% OUT = SPACETIME_RESOLUTION(DATA)
-% OUT = SPACETIME_RESOLUTION(X,Y,T,SPACEWIN,TIMEWIN)
-% OUT = SPACETIME_RESOLUTION(_,OPTS)
-% OUT = SPACETIME_RESOLUTION(_,NAME, VALUE)
+% OUT = SPACETIME_RESOLUTION(X,Y,T,SPACEWIN,TIMEWIN)    Compute the spacetime
+%               resolution for the points given by X,Y,T (vectors with a value for each point)
+%               on the spatial window (ROI) SPACEWIN, (as validated by spacewin_isvalid()), and the
+%               temporal window TIMEWIN (as validated by timewin_isvalid())
+% OUT = SPACETIME_RESOLUTION(DATA)      As above, but with the arguments given as fields of a struct,
+%               with fieldnames 'x','y','t','spacewin', and 'timewin'.
+% OUT = SPACETIME_RESOLUTION(_,NAME, VALUE)     Optional arguments may be given as name-value pairs:
+%               'R' (default: 2.5:5:250): vector of spatial separation values to use for the computation.
+%                               It may be appropriate to change this if your data is given in units other
+%                               than nm.
+%               'TauBinMethod' (default: 'logspace'): string specifying the method to use for automatic
+%                               determination of tau ranges to calculate resolution for.
+%               'NTauBin' (default: 10): Number of tau bins to calculate resolution for.
+%               'TauEdges' (no default): Explicit tau bin edges. Overrides TauBinMethod and NTauBin.
+%               'SigmaStartPt' (default: 10): Starting point for resolution in nonlinear fitting step.
+%                               It may be appropriate to change this if your data is given in units other
+%                               than nm.
+%               'Bootstrap' (default: false): Generate a bootstrapped confidence interval by resampling the
+%                               data. This is off by default because it takes a considerable amount of time.
 
 %% Deal with input arguments and parameters
 args = varargin;

@@ -89,6 +89,7 @@ end
     diffr = diff(r);
     Dr = diffr(1);
     if (max(diffr) - min(diffr))/min(diffr) > 1e-13 || abs((r(1) - Dr/2)/Dr) > 1e-13
+        fprintf('First r bin: center: %f, width: %f, lower edge: %f\n', r(1), diffr(1), rbinedges(1));
         error('spacetime_acor: requested r values must be equally spaced, and smallest r bin must start at 0. Support for unequally spaced r may be added in a future release.')
     end
     % clean them up

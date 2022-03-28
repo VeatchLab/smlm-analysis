@@ -7,6 +7,14 @@ A method to estimate the effective point spread function of static single
 molecule localization microscopy images. Biorxiv. 2022.03.05.483117;
 [doi:10.1101/2022.03.05.483117](https://www.biorxiv.org/content/10.1101/2022.03.05.483117v1).
 
+## Dependencies
+
+The following MATLAB toolboxes are used by this software:
+-Statistics and Machine Learning Toolbox
+-Mapping Toolbox
+-Curve Fitting Toolbox
+-Image Processing Toolbox (only required by `spacewin_gui`)
+
 ## Installation
 
 1. Add src/ and all of its subdirectories to your matlab path

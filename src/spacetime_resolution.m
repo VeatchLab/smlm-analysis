@@ -44,9 +44,9 @@ t = data.t;
 spacewin = data.spacewin;
 timewin = data.timewin;
 % only use points that are inside the spatial window
-inds = spacewin_isinside(x,y,spacewin);
+inds = spacewin_isinside(x,y,spacewin) & timewin_isinside(t,timewin);
 if ~all(inds)
-    fprintf('spatial window contains %d of %d points (%.0f %%)\n',...
+    fprintf('spatial and temporal windows contain %d of %d points (%.0f %%)\n',...
         sum(inds), numel(inds), sum(inds)./numel(inds) * 100);
     x = x(inds);
     y = y(inds);

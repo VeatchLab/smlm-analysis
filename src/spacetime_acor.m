@@ -47,10 +47,10 @@ end
     end
 
     % check that the points are in the spatial window
-    ind = spacewin_isinside(x,y,spacewin);
+    ind = spacewin_isinside(x,y,spacewin) & timewin_isinside(t,timewin);
     if sum(ind) < numel(ind)
         fprintf(['spacetime_acor: removing %d points (%.0f %%) that were ',...
-            'outside of the ROI\n'], numel(ind) - sum(ind), 1 - sum(ind)/numel(ind));
+            'outside of the ROI or temporal window\n'], numel(ind) - sum(ind), (1 - sum(ind)/numel(ind))*100);
     end
     x = x(ind); y = y(ind); t = t(ind);
 

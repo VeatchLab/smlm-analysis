@@ -17,18 +17,19 @@ function [g,errs,time_edge_cor,N,Norm] = spacetime_xcor(x1,y1,t1,x2,y2,t2,spacew
 %       space-time cross-correlation function of the points X1,Y1,T1, with the
 %       points X2,Y2,T2 at R and TAU separations in time and space
 %       respectively. SPACEWIN and TIMEWIN specify the spatial window (ROI) and
-%       temporal extent of the data, respectively.
-%       Note that R and TAU must be equally spaced (by DR and DTAU respectively) for
-%       computational reasons, and that in particular R(1) = DR/2, so that the lower
-%       edge of the first r bin is 0.
-%       SPACETIME_XCOR(X,Y,T,SPACEWIN,TIMEWIN,'REdges',R_Edges,'TauEdges',Tau_edges)
-%       instead of specifying bin centers R and TAU, the user may specify bin edges.
-%       Bins must still satisfy the same conditions as above (though that may be
-%       relaxed in a later release).
-%       SPACETIME_XCOR(_,'How', 'Actual')
-%       SPACETIME_XCOR(_,'How', 'Uniform') Optional argument 'How' specifies how to do
-%       the temporal edge correction, i.e. whether it should assume the observed density
-%       or a uniform density in time, respectively. 'Actual' is the default.
+%       temporal extent of the data, respectively.  Note that R and TAU must be
+%       equally spaced (by DR and DTAU respectively) for computational reasons,
+%       and that in particular R(1) = DR/2, so that the lower edge of the first
+%       r bin is 0.
+% [_] = SPACETIME_XCOR(X1,Y1,T1,X2,Y2,T2,SPACEWIN,TIMEWIN,'REdges',R_Edges,'TauEdges',Tau_edges)
+%       instead of specifying bin centers R and TAU, the user may specify bin
+%       edges.  Bins must still satisfy the same conditions as above (though
+%       that may be relaxed in a later release).
+% [_] = SPACETIME_XCOR(_,'How', 'Actual')
+% [_] = SPACETIME_XCOR(_,'How', 'Uniform') Optional argument 'How' specifies
+%       how to do the temporal edge correction, i.e. whether it should assume
+%       the observed density or a uniform density in time, respectively.
+%       'Actual' is the default.
 
 arguments
     x1          (1,:)   double
@@ -93,7 +94,7 @@ end
         
     difftau = diff(tau);
     if (max(difftau) - min(difftau))/min(difftau) > 1e-13
-        error('spactime_xcor: requested tau values must be equally spaced. Support for unequally spaced tau may be added in a future release.')
+        error('spacetime_xcor: requested tau values must be equally spaced. Support for unequally spaced tau may be added in a future release.')
     end
     Dtau = difftau(1);
     taubinedges = min(tau)-Dtau/2 : Dtau : max(tau)+Dtau/2;

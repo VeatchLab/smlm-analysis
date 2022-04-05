@@ -81,8 +81,7 @@ end
     rmax = max(rbinedges);
     
     % N is just the histogram of pairs, in r and tau bins
-    t1 = zeros(size(x1)); t2 = zeros(size(x2)); % dummy t values
-    N = crosspairs_st_binned(x1,y1,t1, x2,y2,t2, rmax, numel(r), -1, 1, 1);
+    N = crosspairs_binned(x1,y1, x2,y2, rmax, numel(r));
     
     % basic normalization for area and density (no edge corrections)
     area_per_rbin = 2*pi*r'*Dr;

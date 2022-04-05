@@ -73,8 +73,7 @@ end
     rmax = max(rbinedges);
     
     % N is just the histogram of pairs, in r and tau bins
-    t = zeros(size(x)); % dummy array of ts, because we don't have a non-temporal closepairs yet
-    N = closepairs_st_binned(x,y,t, rmax, numel(r), -1, 1, 1);
+    N = closepairs_binned(x,y, rmax, numel(r));
     
     % basic normalization for area and density (no edge corrections)
     area_per_rbin = 2*pi*r'*Dr;

@@ -1,4 +1,4 @@
-% Copyright (C) 2021 Thomas Shaw, and Sarah Veatch
+% Copyright (C) 2022 Thomas Shaw, and Sarah Veatch
 % This file is part of SMLM SPACETIME RESOLUTION
 % SMLM SPACETIME RESOLUTION is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -19,12 +19,12 @@ function [g,errs,time_edge_cor,N,Norm] = spacetime_acor(x,y,t,spacewin,timewin,r
 %       Note that R and TAU must be equally spaced (by DR and DTAU respectively) for
 %       computational reasons, and that in particular R(1) = DR/2, so that the lower
 %       edge of the first r bin is 0.
-%       SPACETIME_ACOR(X,Y,T,SPACEWIN,TIMEWIN,'REdges',R_Edges,'TauEdges',Tau_edges)
+% [_] = SPACETIME_ACOR(X,Y,T,SPACEWIN,TIMEWIN,'REdges',R_Edges,'TauEdges',Tau_edges)
 %       instead of specifying bin centers R and TAU, the user may specify bin edges.
 %       Bins must still satisfy the same conditions as above (though that may be
 %       relaxed in a later release).
-%       SPACETIME_ACOR(_,'How', 'Actual')
-%       SPACETIME_ACOR(_,'How', 'Uniform') Optional argument 'How' specifies how to do
+% [_] = SPACETIME_ACOR(_,'How', 'Actual')
+% [_] = SPACETIME_ACOR(_,'How', 'Uniform') Optional argument 'How' specifies how to do
 %       the temporal edge correction, i.e. whether it should assume the observed density
 %       or a uniform density in time, respectively. 'Actual' is the default.
 
@@ -81,7 +81,7 @@ end
         
     difftau = diff(tau);
     if (max(difftau) - min(difftau))/min(difftau) > 1e-13
-        error('spactime_acor: requested tau values must be equally spaced. Support for unequally spaced tau may be added in a future release.')
+        error('spacetime_acor: requested tau values must be equally spaced. Support for unequally spaced tau may be added in a future release.')
     end
     Dtau = difftau(1);
     taubinedges = min(tau)-Dtau/2 : Dtau : max(tau)+Dtau/2;

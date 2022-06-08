@@ -1,17 +1,5 @@
-% Copyright (C) 2021 Thomas Shaw, and Sarah Veatch
-% This file is part of SMLM SPACETIME RESOLUTION
-% SMLM SPACETIME RESOLUTION is free software: you can redistribute it and/or modify
-% it under the terms of the GNU General Public License as published by
-% the Free Software Foundation, either version 3 of the License, or
-% (at your option) any later version.
-% SMLM SPACETIME RESOLUTION is distributed in the hope that it will be useful,
-% but WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-% GNU General Public License for more details.
-% You should have received a copy of the GNU General Public License
-% along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
-
 function valid = spacewin_isvalid(W)
+% SPACEWIN_ISVALID check whether a spatial window is valid
 % L = SPACEWIN_ISVALID(W) check that the space window (ROI) is valid/allowable
 %       W should be a struct with a 'type' field and others depending on
 %       the type.
@@ -26,6 +14,19 @@ function valid = spacewin_isvalid(W)
 %       of 'ref' should match the size of 'im'. Matlab axis conventions
 %       apply: the first index corresponds to the y axis, and the second
 %       index corresponds to x.
+
+% Copyright (C) 2021 Thomas Shaw, and Sarah Veatch
+% This file is part of SMLM SPACETIME RESOLUTION
+% SMLM SPACETIME RESOLUTION is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+% SMLM SPACETIME RESOLUTION is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% You should have received a copy of the GNU General Public License
+% along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
 
 valid = false;
 

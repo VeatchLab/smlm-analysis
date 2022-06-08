@@ -1,3 +1,7 @@
+function [taufactor,norm] = time_edge_correction_density(t,tau_edges,timewin)
+% TIME_EDGE_CORRECTION_DENSITY temporal edge correction for correlation
+% function
+
 % Copyright (C) 2021 Thomas Shaw, and Sarah Veatch
 % This file is part of SMLM SPACETIME RESOLUTION
 % SMLM SPACETIME RESOLUTION is free software: you can redistribute it and/or modify
@@ -11,7 +15,6 @@
 % You should have received a copy of the GNU General Public License
 % along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
 
-function [taufactor,norm] = time_edge_correction_density(t,tau_edges,timewin)
 ntout = numel(tau_edges) -1;
 % check validity of timewin argument
 if ~timewin_isvalid(timewin)

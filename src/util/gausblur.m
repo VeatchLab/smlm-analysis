@@ -1,3 +1,11 @@
+function I2 = gausblur(I1, sigma, cutoff)
+% B = GAUSBLUR(A, SIGMA)
+%
+% A     Image (2d double array) to be blurred
+% sigma Sigma of gaussian to blur by, in image pixel units
+%
+% B     Output image, with same size as A
+
 % Copyright (C) 2021 Thomas Shaw
 % This file is part of SMLM SPACETIME RESOLUTION
 % SMLM SPACETIME RESOLUTION is free software: you can redistribute it and/or modify
@@ -10,14 +18,6 @@
 % GNU General Public License for more details.
 % You should have received a copy of the GNU General Public License
 % along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
-
-function I2 = gausblur(I1, sigma, cutoff)
-% B = GAUSBLUR(A, SIGMA)
-%
-% A     Image (2d double array) to be blurred
-% sigma Sigma of gaussian to blur by, in image pixel units
-%
-% B     Output image, with same size as A
 
 if nargin < 3
     % this is about 99th percentile.

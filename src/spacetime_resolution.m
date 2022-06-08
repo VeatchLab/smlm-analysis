@@ -1,17 +1,5 @@
-% Copyright (C) 2021 Thomas Shaw, and Sarah Veatch
-% This file is part of SMLM SPACETIME RESOLUTION
-% SMLM SPACETIME RESOLUTION is free software: you can redistribute it and/or modify
-% it under the terms of the GNU General Public License as published by
-% the Free Software Foundation, either version 3 of the License, or
-% (at your option) any later version.
-% SMLM SPACETIME RESOLUTION is distributed in the hope that it will be useful,
-% but WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-% GNU General Public License for more details.
-% You should have received a copy of the GNU General Public License
-% along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
-
 function [out, params] = spacetime_resolution(varargin)
+% SPACETIME_RESOLUTION compute spatiotemporal point-spread function from point data
 % OUT = SPACETIME_RESOLUTION(X,Y,T,SPACEWIN,TIMEWIN)    Compute the spacetime
 %               resolution for the points given by X,Y,T (vectors with a value for each point)
 %               on the spatial window (ROI) SPACEWIN, (as validated by spacewin_isvalid()), and the
@@ -31,6 +19,19 @@ function [out, params] = spacetime_resolution(varargin)
 %                               than nm.
 %               'Bootstrap' (default: false): Generate a bootstrapped confidence interval by resampling the
 %                               data. This is off by default because it takes a considerable amount of time.
+
+% Copyright (C) 2021 Thomas Shaw, and Sarah Veatch
+% This file is part of SMLM SPACETIME RESOLUTION
+% SMLM SPACETIME RESOLUTION is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+% SMLM SPACETIME RESOLUTION is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% You should have received a copy of the GNU General Public License
+% along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
 
 %% Deal with input arguments and parameters
 args = varargin;

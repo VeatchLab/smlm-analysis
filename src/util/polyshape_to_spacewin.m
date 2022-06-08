@@ -1,3 +1,6 @@
+function spacewin = polyshape_to_spacewin(p, type, ref)
+% POLYSHAPE_TO_SPACEWIN convert a polyshape into a spatial window
+
 % Copyright (C) 2021 Thomas Shaw
 % This file is part of SMLM SPACETIME RESOLUTION
 % SMLM SPACETIME RESOLUTION is free software: you can redistribute it and/or modify
@@ -10,8 +13,6 @@
 % GNU General Public License for more details.
 % You should have received a copy of the GNU General Public License
 % along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
-
-function spacewin = polyshape_to_spacewin(p, type, ref)
 
 % TODO: check that the right kinds of variable are given
 spacewin.type = type;

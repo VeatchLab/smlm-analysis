@@ -1,3 +1,6 @@
+function I = reconstruct(data, iref)
+% use iref
+
 % Copyright (C) 2021 Thomas Shaw, and Sarah Veatch
 % This file is part of SMLM SPACETIME RESOLUTION
 % SMLM SPACETIME RESOLUTION is free software: you can redistribute it and/or modify
@@ -10,10 +13,6 @@
 % GNU General Public License for more details.
 % You should have received a copy of the GNU General Public License
 % along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
-
-function I = reconstruct(data, iref)
-% use iref
-
 left = iref.XWorldLimits(1);
 right = iref.XWorldLimits(2);
 top = iref.YWorldLimits(1);

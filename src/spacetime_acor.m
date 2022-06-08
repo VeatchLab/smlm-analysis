@@ -1,17 +1,5 @@
-% Copyright (C) 2022 Thomas Shaw, and Sarah Veatch
-% This file is part of SMLM SPACETIME RESOLUTION
-% SMLM SPACETIME RESOLUTION is free software: you can redistribute it and/or modify
-% it under the terms of the GNU General Public License as published by
-% the Free Software Foundation, either version 3 of the License, or
-% (at your option) any later version.
-% SMLM SPACETIME RESOLUTION is distributed in the hope that it will be useful,
-% but WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-% GNU General Public License for more details.
-% You should have received a copy of the GNU General Public License
-% along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
-
 function [g,errs,time_edge_cor,N,Norm] = spacetime_acor(x,y,t,spacewin,timewin,r,tau,NmVal)
+% SPACETIME_ACOR compute spatiotemporal correlation function for point data
 % [G,ERR,TIME_EDGE_COR,N,NORM] = SPACETIME_ACOR(X,Y,T,SPACEWIN,TIMEWIN,R,TAU)
 %       space-time autocorrelation function of the points X,Y,T, at R and TAU
 %       separations in time and space respectively. SPACEWIN and TIMEWIN specify the
@@ -28,6 +16,18 @@ function [g,errs,time_edge_cor,N,Norm] = spacetime_acor(x,y,t,spacewin,timewin,r
 %       the temporal edge correction, i.e. whether it should assume the observed density
 %       or a uniform density in time, respectively. 'Actual' is the default.
 
+% Copyright (C) 2022 Thomas Shaw, and Sarah Veatch
+% This file is part of SMLM SPACETIME RESOLUTION
+% SMLM SPACETIME RESOLUTION is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+% SMLM SPACETIME RESOLUTION is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% You should have received a copy of the GNU General Public License
+% along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
 arguments
     x           (1,:)   double
     y           (1,:)   double

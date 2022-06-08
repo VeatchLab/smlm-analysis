@@ -1,3 +1,16 @@
+function [g,errs,N,Norm] = spatial_acor(x,y,spacewin,r,NmVal)
+% SPATIAL_ACOR compute spatial correlation function of point data
+% [G,ERR,N,NORM] = SPATIAL_ACOR(X,Y,SPACEWIN,R)
+%       space-time autocorrelation function of the points X,Y, at R separations
+%       in space. SPACEWIN specifies the spatial window (ROI) of the data.
+%       Note that R must be equally spaced (by DR) for computational reasons,
+%       and that in particular R(1) = DR/2, so that the lower edge of the first
+%       r bin is 0.
+%       SPATIAL_ACOR(X,Y,SPACEWIN,'REdges',R_Edges)
+%       instead of specifying bin centers R, the user may specify bin edges.
+%       Bins must still satisfy the same conditions as above (though that may
+%       be relaxed in a later release).
+
 % Copyright (C) 2022 Thomas Shaw, and Sarah Veatch
 % This file is part of SMLM SPACETIME RESOLUTION
 % SMLM SPACETIME RESOLUTION is free software: you can redistribute it and/or modify
@@ -10,18 +23,6 @@
 % GNU General Public License for more details.
 % You should have received a copy of the GNU General Public License
 % along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
-
-function [g,errs,N,Norm] = spatial_acor(x,y,spacewin,r,NmVal)
-% [G,ERR,N,NORM] = SPATIAL_ACOR(X,Y,SPACEWIN,R)
-%       space-time autocorrelation function of the points X,Y, at R separations
-%       in space. SPACEWIN specifies the spatial window (ROI) of the data.
-%       Note that R must be equally spaced (by DR) for computational reasons,
-%       and that in particular R(1) = DR/2, so that the lower edge of the first
-%       r bin is 0.
-%       SPATIAL_ACOR(X,Y,SPACEWIN,'REdges',R_Edges)
-%       instead of specifying bin centers R, the user may specify bin edges.
-%       Bins must still satisfy the same conditions as above (though that may
-%       be relaxed in a later release).
 
 arguments
     x           (1,:)   double

@@ -1,18 +1,6 @@
-% Copyright (C) 2021 Thomas Shaw, and Sarah Veatch
-% This file is part of SMLM SPACETIME RESOLUTION
-% SMLM SPACETIME RESOLUTION is free software: you can redistribute it and/or modify
-% it under the terms of the GNU General Public License as published by
-% the Free Software Foundation, either version 3 of the License, or
-% (at your option) any later version.
-% SMLM SPACETIME RESOLUTION is distributed in the hope that it will be useful,
-% but WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-% GNU General Public License for more details.
-% You should have received a copy of the GNU General Public License
-% along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
-
 function [g,errs,time_edge_cor,N,Norm] = spacetime_xcor(x1,y1,t1,x2,y2,t2,spacewin,timewin,...
                                      r,tau,NmVal)
+% SPACETIME_XCOR compute spatiotemporal cross correlation function of point data
 % [G,ERR,TIME_EDGE_COR,N,NORM] = SPACETIME_XCOR(X1,Y1,T1,X2,Y2,T2,SPACEWIN,TIMEWIN,R,TAU)
 %       space-time cross-correlation function of the points X1,Y1,T1, with the
 %       points X2,Y2,T2 at R and TAU separations in time and space
@@ -30,6 +18,19 @@ function [g,errs,time_edge_cor,N,Norm] = spacetime_xcor(x1,y1,t1,x2,y2,t2,spacew
 %       how to do the temporal edge correction, i.e. whether it should assume
 %       the observed density or a uniform density in time, respectively.
 %       'Actual' is the default.
+
+% Copyright (C) 2021 Thomas Shaw, and Sarah Veatch
+% This file is part of SMLM SPACETIME RESOLUTION
+% SMLM SPACETIME RESOLUTION is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+% SMLM SPACETIME RESOLUTION is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% You should have received a copy of the GNU General Public License
+% along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
 
 arguments
     x1          (1,:)   double

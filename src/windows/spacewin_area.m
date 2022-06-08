@@ -1,3 +1,9 @@
+function A = spacewin_area(W)
+% SPACEWIN_AREA compute area of a spatial window
+% A = SPACEWIN_AREA(W)      W should be a valid spatial window according to
+%                           SPACEWIN_ISVALID(). A is the area of the
+%                           spatial window, in appropriate units.
+
 % Copyright (C) 2021 Thomas Shaw, and Sarah Veatch
 % This file is part of SMLM SPACETIME RESOLUTION
 % SMLM SPACETIME RESOLUTION is free software: you can redistribute it and/or modify
@@ -10,11 +16,6 @@
 % GNU General Public License for more details.
 % You should have received a copy of the GNU General Public License
 % along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
-
-function A = spacewin_area(W)
-% A = SPACEWIN_AREA(W)      W should be a valid spatial window according to
-%                           SPACEWIN_ISVALID(). A is the area of the
-%                           spatial window, in appropriate units.
 
 if ~spacewin_isvalid(W)
     error('spacewin_area: invalid spatial window')

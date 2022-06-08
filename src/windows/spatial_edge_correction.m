@@ -1,3 +1,12 @@
+function correction = spatial_edge_correction(W, r)
+% SPATIAL_EDGE_CORRECTION spatial edge correction for a correlation function
+% of data observed on a given spatial window
+% C = SPATIAL_EDGE_CORRECTION(W,R)      Isotropic spatial edge correction
+%             for pair correlation functions or Ripley's K functions, for a
+%             spatial window W (as specified for spacewin_isvalid()), at
+%             distances R
+%             Normalized to Area, so that it is order 1.
+
 % Copyright (C) 2021 Thomas Shaw, and Sarah Veatch
 % This file is part of SMLM SPACETIME RESOLUTION
 % SMLM SPACETIME RESOLUTION is free software: you can redistribute it and/or modify
@@ -10,13 +19,6 @@
 % GNU General Public License for more details.
 % You should have received a copy of the GNU General Public License
 % along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
-
-function correction = spatial_edge_correction(W, r)
-% C = SPATIAL_EDGE_CORRECTION(W,R)      Isotropic spatial edge correction
-%             for pair correlation functions or Ripley's K functions, for a
-%             spatial window W (as specified for spacewin_isvalid()), at
-%             distances R
-%             Normalized to Area, so that it is order 1.
 
 if strcmp(W.type, 'image')
     % Strategy is a bit different for images, for computational reasons

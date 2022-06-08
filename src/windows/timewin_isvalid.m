@@ -1,3 +1,9 @@
+function valid = timewin_isvalid(T)
+% L = TIMEWIN_ISVALID(T) check that the time window is valid/allowable
+%       T should be an ordered, disjoint set of N closed intervals,
+%       represented as an Nx2 matrix, so that T(i,1) and T(i,2)
+%       are the start and end times of the ith interval, respectively
+
 % Copyright (C) 2021 Thomas Shaw, and Sarah Veatch
 % This file is part of SMLM SPACETIME RESOLUTION
 % SMLM SPACETIME RESOLUTION is free software: you can redistribute it and/or modify
@@ -10,12 +16,6 @@
 % GNU General Public License for more details.
 % You should have received a copy of the GNU General Public License
 % along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
-
-function valid = timewin_isvalid(T)
-% L = TIMEWIN_ISVALID(T) check that the time window is valid/allowable
-%       T should be an ordered, disjoint set of N closed intervals,
-%       represented as an Nx2 matrix, so that T(i,1) and T(i,2)
-%       are the start and end times of the ith interval, respectively
 
 goodsz = size(T,2) == 2;
 long = T';

@@ -1,3 +1,9 @@
+function l = timewin_duration(T)
+% L = TIMEWIN_DURATION(T) find the duration of a temporal window
+%       T is an ordered, disjoint set of N closed intervals,
+%       represented as an Nx2 matrix, so that T(i,1) and T(i,2)
+%       are the start and end times of the ith interval, respectively
+
 % Copyright (C) 2021 Thomas Shaw, and Sarah Veatch
 % This file is part of SMLM SPACETIME RESOLUTION
 % SMLM SPACETIME RESOLUTION is free software: you can redistribute it and/or modify
@@ -10,12 +16,6 @@
 % GNU General Public License for more details.
 % You should have received a copy of the GNU General Public License
 % along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
-
-function l = timewin_duration(T)
-% L = TIMEWIN_DURATION(T) find the duration of a temporal window
-%       T is an ordered, disjoint set of N closed intervals,
-%       represented as an Nx2 matrix, so that T(i,1) and T(i,2)
-%       are the start and end times of the ith interval, respectively
 
 % check that T is a valid time window
 if ~timewin_isvalid(T)

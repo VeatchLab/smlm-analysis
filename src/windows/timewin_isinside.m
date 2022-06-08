@@ -1,3 +1,8 @@
+function inds = timewin_isinside(t, timewin)
+% TIMEWIN_ISINSIDE check which points are in a given temporal window
+% INDS = TIMEWIN_ISINSIDE(T,TIMEWIN)    Return a logical vector the same size as T
+%           such that INDS(i) is true iff T(i) is inside TIMEWIN
+
 % Copyright (C) 2021 Thomas Shaw, and Sarah Veatch
 % This file is part of SMLM SPACETIME RESOLUTION
 % SMLM SPACETIME RESOLUTION is free software: you can redistribute it and/or modify
@@ -10,10 +15,6 @@
 % GNU General Public License for more details.
 % You should have received a copy of the GNU General Public License
 % along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
-
-function inds = timewin_isinside(t, timewin)
-% INDS = TIMEWIN_ISINSIDE(T,TIMEWIN)    Return a logical vector the same size as T
-%           such that INDS(i) is true iff T(i) is inside TIMEWIN
 
 if ~timewin_isvalid(timewin)
     error('timewin_isinside: invalid temporal window provided');

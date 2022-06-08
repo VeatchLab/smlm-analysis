@@ -1,3 +1,9 @@
+function ind = spacewin_isinside(x,y,W)
+% SPACEWIN_ISINSIDE check which points are inside a spatial window
+% IND = SPACEWIN_ISINSIDE(X,Y,W)
+%       IND(i) is true if the point X(i), Y(i) is in the spatial window W,
+%       as specified by spacewin_isvalid(), and false otherwise.
+
 % Copyright (C) 2021 Thomas Shaw, and Sarah Veatch
 % This file is part of SMLM SPACETIME RESOLUTION
 % SMLM SPACETIME RESOLUTION is free software: you can redistribute it and/or modify
@@ -10,11 +16,6 @@
 % GNU General Public License for more details.
 % You should have received a copy of the GNU General Public License
 % along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
-
-function ind = spacewin_isinside(x,y,W)
-% IND = SPACEWIN_ISINSIZE(X,Y,W)
-%       IND(i) is true if the point X(i), Y(i) is in the spatial window W,
-%       as specified by spacewin_isvalid(), and false otherwise.
 
 if ~spacewin_isvalid(W)
     error('spacewin_isinside: invalid spatial window provided');

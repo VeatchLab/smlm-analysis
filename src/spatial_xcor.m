@@ -1,3 +1,16 @@
+function [g,errs,N,Norm] = spatial_xcor(x1,y1,x2,y2,spacewin,r,NmVal)
+% SPATIAL_XCOR compute spatial cross correlation of two point data sets
+% [G,ERR,N,NORM] = SPATIAL_XCOR(X1,Y1,X2,Y2,T2,SPACEWIN,R)
+%       spatial cross-correlation function of the points X1,Y1, with the points
+%       X2,Y2 at R separations in space. SPACEWIN specifies the spatial window
+%       (ROI) for the data. Note that R must be equally spaced (by DR) for
+%       computational reasons, and that in particular R(1) = DR/2, so that the
+%       lower edge of the first r bin is 0.
+%       SPATIAL_XCOR(X1,Y1,X2,Y2,SPACEWIN,'REdges',R_Edges)
+%       instead of specifying bin centers R, the user may specify bin edges.
+%       Bins must still satisfy the same conditions as above (though that may
+%       be relaxed in a later release).
+
 % Copyright (C) 2022 Thomas Shaw, and Sarah Veatch
 % This file is part of SMLM SPACETIME RESOLUTION
 % SMLM SPACETIME RESOLUTION is free software: you can redistribute it and/or modify
@@ -10,18 +23,6 @@
 % GNU General Public License for more details.
 % You should have received a copy of the GNU General Public License
 % along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
-
-function [g,errs,N,Norm] = spatial_xcor(x1,y1,x2,y2,spacewin,r,NmVal)
-% [G,ERR,N,NORM] = SPATIAL_XCOR(X1,Y1,X2,Y2,T2,SPACEWIN,R)
-%       spatial cross-correlation function of the points X1,Y1, with the points
-%       X2,Y2 at R separations in space. SPACEWIN specifies the spatial window
-%       (ROI) for the data. Note that R must be equally spaced (by DR) for
-%       computational reasons, and that in particular R(1) = DR/2, so that the
-%       lower edge of the first r bin is 0.
-%       SPATIAL_XCOR(X1,Y1,X2,Y2,SPACEWIN,'REdges',R_Edges)
-%       instead of specifying bin centers R, the user may specify bin edges.
-%       Bins must still satisfy the same conditions as above (though that may
-%       be relaxed in a later release).
 
 arguments
     x1          (1,:)   double

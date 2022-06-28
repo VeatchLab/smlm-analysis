@@ -129,7 +129,7 @@ minds = .5;
 %weights = 1./max(minds, ds).^2;
 weights = sum(counts_g(:,1:end),1); % all r in given tau bin
 S = sum(weights.*[s s(end)])/sum(weights);
-dS = sqrt(1./sum(weights));
+dS = sqrt(sum([ds, ds(end)].^2.*weights.^2))/sum(weights);
 
 %% bootstrap CIs
 conf = nan(size(s));
@@ -153,6 +153,8 @@ if params.Bootstrap
     end
     fprintf('\n');
     conf = std(s_resamp,[],1)/2;
+    dS = sqrt(sum([conf, conf(end)].^2.*weights.^2))/sum(weights);
+
     toc
 end
 

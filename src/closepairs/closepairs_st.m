@@ -11,7 +11,7 @@
 % You should have received a copy of the GNU General Public License
 % along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
 
-function [counts] = closepairs_st_binned(x, y, t, rmax, nrout, taumin, taumax, ntout)
+function [dxout,dyout,dtout,err] = closepairs_st_binned(x, y, t, rmax, taumin, taumax, noutmax)
 
 ind = sortbywhich(x,y, rmax, t, taumin, taumax);
 switch ind
@@ -41,6 +41,4 @@ switch ind
         sortbyt = uint64(1);
 end
 
-[counts] = Fclosepairs_st_binned(x,y,t, rmax, uint64(nrout), taumin, taumax, uint64(ntout),sortbyt);
-
-counts = double(counts);
+[dxout,dyout,dtout,err] = Fclosepairs_st(x,y,t, rmax, taumin, taumax, uint64(noutmax), sortbyt);

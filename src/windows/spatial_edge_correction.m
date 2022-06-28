@@ -1,4 +1,4 @@
-function correction = spatial_edge_correction(W, r)
+function correction = spatial_edge_correction(W, r, hy)
 % SPATIAL_EDGE_CORRECTION spatial edge correction for a correlation function
 % of data observed on a given spatial window
 % C = SPATIAL_EDGE_CORRECTION(W,R)      Isotropic spatial edge correction
@@ -6,6 +6,9 @@ function correction = spatial_edge_correction(W, r)
 %             spatial window W (as specified for spacewin_isvalid()), at
 %             distances R
 %             Normalized to Area, so that it is order 1.
+% C = SPATIAL_EDGE_CORRECTION(W,HX,HY)  Anisotropic spatial edge correction.
+%             As above, but for a vector displacement hx,hy in x and y
+%             respectively.
 
 % Copyright (C) 2021 Thomas Shaw, and Sarah Veatch
 % This file is part of SMLM SPACETIME RESOLUTION
@@ -20,6 +23,16 @@ function correction = spatial_edge_correction(W, r)
 % You should have received a copy of the GNU General Public License
 % along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
 
+if nargin < 3
+    isotropic = true;
+else
+    isotropic = false;
+    hx = r;
+    if ~isequal(size(hx), size(hy))
+        error('spatial_edge_correction: for anisotropic edge correction, hx and hy must be same size')
+    end
+end
+
 if strcmp(W.type, 'image')
     % Strategy is a bit different for images, for computational reasons
     wij = conv2_fft_norm_and_interp(W.im, W.ref);
@@ -28,17 +41,24 @@ else
     wij = @(dx,dy) wij_poly(W,dx,dy)/area;
 end
 
-ntheta = 60;
-thetas = pi*(1:ntheta)/ntheta; % only need 0 to pi because w_ij(theta + pi) = w_ij(theta)
-correction = zeros(size(r));
-for i = 1:numel(r)
-    for j = 1:ntheta
-        dx = cos(thetas(j))*r(i);
-        dy = sin(thetas(j))*r(i);
-        correction(i) = correction(i) + wij(dx, dy)/ntheta;
+if isotropic
+    ntheta = 60;
+    thetas = pi*(1:ntheta)/ntheta; % only need 0 to pi because w_ij(theta + pi) = w_ij(theta)
+    correction = zeros(size(r));
+    for i = 1:numel(r)
+        for j = 1:ntheta
+            dx = cos(thetas(j))*r(i);
+            dy = sin(thetas(j))*r(i);
+            correction(i) = correction(i) + wij(dx, dy)/ntheta;
+        end
+    end
+    correction = correction(:);
+else %anisotropic
+    correction = zeros(size(hx));
+    for i=1:numel(hx) % possibly this could be vectorized for the image case. I don't think it can be for the polygon case
+        correction(i) = wij(hx(i),hy(i));
     end
 end
-correction = correction(:);
 end
 
 function w = wij_poly(W, dx, dy)

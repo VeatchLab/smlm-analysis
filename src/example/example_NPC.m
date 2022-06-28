@@ -19,13 +19,9 @@ data
 
 %% Optionally draw a new spatial window / ROI. Skip this step to use the one from the paper.
 % spacewin_gui is a helper gui for drawing spatial windows that may have
-% holes or multiple disjoint segments. Press 'save to base workspace' when
-% you are done. That will save the spatial window to the matlab base workspace 
-% as a struct with the appropriate format.
-% spacewin_gui(data, 'PixelSize', 10) % use 10nm pixels
-
-% then save into the 'data' struct manually
-% data.spacewin = spacewin;
+% holes or multiple disjoint segments. Press 'save and close' when
+% you are done.
+% data.spacewin = spacewin_gui(data, 'PixelSize', 10) % use 10nm pixels
 
 %% Run the resolution estimation routine
 % Here we supply the data as a struct with fields x,y,t,spacewin,timewin.

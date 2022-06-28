@@ -1,15 +1,15 @@
 function [g,errs,time_edge_cor,N,Norm] = spacetime_acor_xy(x,y,t,spacewin,timewin,hxy,tau,NmVal)
-% SPACETIME_ACOR compute spatiotemporal correlation function for point data
-% [G,ERR,TIME_EDGE_COR,N,NORM] = SPACETIME_ACOR(X,Y,T,SPACEWIN,TIMEWIN,R,TAU)
+% SPACETIME_ACOR_XY compute spatiotemporal correlation function for point data
+% [G,ERR,TIME_EDGE_COR,N,NORM] = SPACETIME_ACOR_XY(X,Y,T,SPACEWIN,TIMEWIN,R,TAU)
 %       space-time autocorrelation function of the points X,Y,T, at a lattice
 %       of points specified by HXY in x and y and TAU separations in time and
 %       space respectively. SPACEWIN and TIMEWIN specify the spatial window
 %       (ROI) and temporal extent of the data, respectively. HXY and TAU should
 %       be equally spaced.
-% [_] = SPACETIME_ACOR(X,Y,T,SPACEWIN,TIMEWIN,'XYEdges',XY_Edges,'TauEdges',Tau_edges)
+% [_] = SPACETIME_ACOR_XY(X,Y,T,SPACEWIN,TIMEWIN,'XYEdges',XY_Edges,'TauEdges',Tau_edges)
 %       instead of specifying bin centers HXY and TAU, the user may specify bin edges.
-% [_] = SPACETIME_ACOR(_,'How', 'Actual')
-% [_] = SPACETIME_ACOR(_,'How', 'Uniform') Optional argument 'How' specifies how to do
+% [_] = SPACETIME_ACOR_XY(_,'How', 'Actual')
+% [_] = SPACETIME_ACOR_XY(_,'How', 'Uniform') Optional argument 'How' specifies how to do
 %       the temporal edge correction, i.e. whether it should assume the observed density
 %       or a uniform density in time, respectively. 'Actual' is the default.
 

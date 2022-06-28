@@ -1,3 +1,5 @@
+This code is actively developed at https://gitlab.umich.edu/VeatchLab/smlm-spacetime-resolution 
+
 # SMLM spacetime resolution
 
 This software provides the computations described in

@@ -1,5 +1,5 @@
 
-function [gm, gamma] = spatial_gradient_correction(data, r, sigma, varargin)
+function [gm, gamma] = spatial_gradient_correction(x1,y1,x2,y2,spacewin,r, sigma, varargin)
 
 p = inputParser;
 
@@ -9,22 +9,32 @@ type = p.Results.type;
 
 d = r(2)-r(1);
 
-left = min(data(1).spacewin.x);
-right = max(data(1).spacewin.x);
-top = min(data(1).spacewin.y);
-bottom = max(data(1).spacewin.y);
-
-I1 = histcounts2(data(1).x, data(1).y, left:d:right, top:d:bottom)';
-if numel(data)==1
-    I2 = I1;
-elseif numel(data) == 2
-    I2 = histcounts2(data(2).x, data(2).y, left:d:right, top:d:bottom)';
-else
-    error('only supported for 1 or 2 colors')
+switch spacewin.type
+    case 'polygon'
+        left = min(spacewin.x);
+        right = max(spacewin.x);
+        top = min(spacewin.y);
+        bottom = max(spacewin.y);
+    case 'image'
+        left = spacewin.ref.XWorldLimits(1);
+        right = spacewin.ref.XWorldLimits(2);
+        top = spacewin.ref.YWorldLimits(1);
+        bottom = spacewin.ref.YWorldLimits(2);
+    case 'polyshape'
+        points = spacewin.p.Vertices;
+        left = min(spacewin.p.Vertices(:, 1));
+        right = max(spacewin.p.Vertices(:, 1));
+        top = min(spacewin.p.Vertices(:, 2));
+        bottom = max(spacewin.p.Vertices(:, 2));
 end
+I1 = histcounts2(x1, y1, left:d:right, top:d:bottom)';
+I2 = histcounts2(x2, y2, left:d:right, top:d:bottom)';
+
 
 [X, Y] = meshgrid(left+d/2:d:right-d/2, top+d/2:d:bottom-d/2);
-mask = inpolygon(X,Y,data(1).spacewin.x, data(1).spacewin.y);
+%mask = inpolygon(X,Y,spacewin.x, spacewin.y);
+mask = spacewin_isinside(X(:),Y(:),spacewin);
+mask = reshape(mask, size(X));
 
 lx = 2*size(I1, 1)+1;
 ly = 2*size(I1, 2)+1;
@@ -73,7 +83,7 @@ switch type
         gamma(~mask2) = 0;
 end
 
-%%
+
 % angular average
 [X, Y] = meshgrid((1:size(gamma, 2))-size(gamma, 2)/2-1, (1:size(gamma, 1))-floor(size(gamma, 1)/2)-1);
 R = d*sqrt(X.^2+Y.^2);
@@ -82,7 +92,7 @@ for i=1:numel(r)
     inds = R(:)>=r(i)-d/2 &R(:)<r(i)+d/2;
     gm(i) = mean(gamma(inds));
 end
-
+gm = gm';
 
 
 

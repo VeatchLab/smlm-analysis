@@ -13,7 +13,7 @@
 
 function varargout = spacewin_gui(data,params)
 arguments
-    data (1,1) struct {mustHaveXYFields}
+    data (1,:) struct {mustHaveXYFields}
     params.PixelSize (1,1) double = 12
     params.Ref = []
     params.FigHandle (1,1) logical = false;
@@ -37,18 +37,21 @@ handles.lpanel = uipanel(fig, 'Units', 'centimeters');
 ax = axes(handles.rpanel, 'Units', 'normalized', 'OuterPosition', [0.01 0.01 .98 .98]);
 handles.ax = ax;
 
+
+
 % Show the data
 handles.data = data;
 if isempty(params.Ref)
-    handles.ref = default_iref([data.x(:),data.y(:)],params.PixelSize);
+    handles.ref = default_iref([data(1).x(:),data(1).y(:)],params.PixelSize);
 else
     handles.ref = params.Ref;
     params.PixelSize = params.Ref.PixelExtentInWorldX;
 end
 handles.psize = handles.ref.PixelExtentInWorldX;
-handles.I = gausblur(reconstruct(data,handles.ref), 15/handles.psize);
+handles.I = gausblur(reconstruct(data(1),handles.ref), 15/handles.psize);
 
 handles.im_obj = imshow(handles.I,handles.ref, 'Parent', handles.ax);
+
 % make the axes nicer?
 caxis(ax,[0,1]);
 hold(ax, 'on');
@@ -71,6 +74,22 @@ handles.type_menu = uicontrol(handles.lpanel, 'Style', 'popupmenu',...
 
 handles.lpanel_uic_list = {'addbtn', 'rmbtn', 'break',...
     'type_label','type_menu'};
+handles.cmax_label = uicontrol(handles.lpanel, 'Style', 'text', ...
+    'String', 'saturation intensity (cmax)');
+handles.cmax_edit = uicontrol(handles.lpanel, 'Style', 'edit', ...
+        'String', '1', 'Callback', @updatecmax);
+handles.channel_label = uicontrol(handles.lpanel, 'Style', 'text', ...
+    'String', 'channel number');
+Nchannels = numel(data);
+for i=1:numel(data), channelnames{i} = num2str(i); end
+handles.channel_menu = uicontrol(handles.lpanel, 'Style', 'popupmenu',...
+    'String',channelnames, 'Value', 1, 'Callback', @updateimage);
+handles.timerange_label = uicontrol(handles.lpanel, 'Style', 'text', ...
+    'String', 'time range (min)');
+handles.timerange_min = uicontrol(handles.lpanel, 'Style', 'edit',...
+    'String',num2str(min(data(1).t)/60, 2),'Callback', @updateimage);
+handles.timerange_max = uicontrol(handles.lpanel, 'Style', 'edit',...
+    'String',num2str(max(data(1).t)/60, 2),'Callback', @updateimage);
 
 if show_save_btns
     handles.varname_label = uicontrol(handles.lpanel, 'Style', 'text', ...
@@ -89,7 +108,9 @@ if show_save_btns
 
     handles.lpanel_uic_list = [handles.lpanel_uic_list,...
         {'varname_label', 'varname_edit', 'saveasvarbtn',...
-        'fname_label', 'fname_edit', 'saveasfilebtn'}];
+        'fname_label', 'fname_edit', 'saveasfilebtn', ...
+        'cmax_label', 'cmax_edit', 'channel_label', 'channel_menu', ...
+        'timerange_label', 'timerange_min', 'timerange_max'}];
 else
     handles.close_btn = uicontrol(handles.lpanel, 'Style', 'pushbutton',...
         'String', 'Close and return spacewin', 'Callback', @(h,e) set(h, 'UserData', true));
@@ -257,4 +278,28 @@ end
 if hasx
     data.x = x; data.y = y;
 end
+end
+
+function updatecmax(obj, ~)
+        handles = guidata(obj);
+        cmax = str2double(handles.cmax_edit.String);
+        if isfinite(cmax)
+            caxis(handles.ax,[0,cmax]);
+        else
+            handles.cmax_edit.String = "1";
+        end
+end
+
+function updateimage(obj, ~)
+    handles = guidata(obj);
+    channel = handles.channel_menu.Value;
+    tmin = 60*str2double(handles.timerange_min.String);
+    tmax = 60*str2double(handles.timerange_max.String);
+    keep = handles.data(channel).t >= tmin & handles.data(channel).t <= tmax;
+    d.x = handles.data(channel).x(keep);
+    d.y = handles.data(channel).y(keep);
+    handles.I = gausblur(reconstruct(d,handles.ref), 15/handles.psize);
+    %handles.im_obj = imshow(handles.I,handles.ref, 'Parent', handles.ax);
+    set(handles.im_obj, 'CData', handles.I);
+    drawnow
 end

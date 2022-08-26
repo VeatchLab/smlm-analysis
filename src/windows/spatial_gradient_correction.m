@@ -23,6 +23,18 @@ function [gm, gamma] = spatial_gradient_correction(x1,y1,x2,y2,spacewin,r, sigma
 %               The 'pairs' edge correction computes the correction on the
 %               blurred distribution of between-channel pair displacements.
 
+% Copyright (C) 2022 Thomas Shaw, and Sarah Veatch
+% This file is part of SMLM SPACETIME RESOLUTION
+% SMLM SPACETIME RESOLUTION is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+% SMLM SPACETIME RESOLUTION is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% You should have received a copy of the GNU General Public License
+% along with SMLM SPACETIME RESOLUTION.  If not, see <https://www.gnu.org/licenses/>
 p = inputParser;
 
 addParameter(p, 'type', 'points',@(x) any(validatestring(x,{'points', 'pairs'})))

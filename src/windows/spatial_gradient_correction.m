@@ -1,5 +1,27 @@
-
 function [gm, gamma] = spatial_gradient_correction(x1,y1,x2,y2,spacewin,r, sigma, varargin)
+% SPATIAL_GRADIENT_CORRECTION Compute correction factor to correct
+% spatial cross correlations for spatially varying density.
+% 
+% [GM, GAMMA] = SPATIAL_GRADIENT_CORRECTION(X1,Y1,X2,Y2,SPACEWIN,R,SIGMA)
+%               Compute correction for a cross-correlation of the datasets
+%               x1,y1 and x2,y2, on a region of interest defined by
+%               SPACEWIN, using a kernel density estimator for the density
+%               with Gaussian blurring with standard deviation of SIGMA. R
+%               sets the spatial separations at which to evaluate the
+%               corrections. GAMMA is a 2d array with the (anisotropic)
+%               correction factors as a function of dx, dy. GM is averaged
+%               over angles so that GM(i) is the correction for the
+%               (isotropic) cross-correlation at R(i).
+%
+% [_] = SPATIAL_GRADIENT_CORRECTION(_,'type', t)
+%               As above, specifying the type of edge correction to perform
+%               when calculating the correction. t must be either 'points'
+%               (the default), or 'pairs'. The 'points' edge correction
+%               computes the correction by convolving an edge corrected
+%               kernel density estimate for each channel independently. This
+%               is the method described in Shaw, Moller, Waagepetersen. 2020.
+%               The 'pairs' edge correction computes the correction on the
+%               blurred distribution of between-channel pair displacements.
 
 p = inputParser;
 
@@ -22,17 +44,16 @@ switch spacewin.type
         bottom = spacewin.ref.YWorldLimits(2);
     case 'polyshape'
         points = spacewin.p.Vertices;
-        left = min(spacewin.p.Vertices(:, 1));
-        right = max(spacewin.p.Vertices(:, 1));
-        top = min(spacewin.p.Vertices(:, 2));
-        bottom = max(spacewin.p.Vertices(:, 2));
+        left = min(points(:, 1));
+        right = max(points(:, 1));
+        top = min(points(:, 2));
+        bottom = max(points(:, 2));
 end
 I1 = histcounts2(x1, y1, left:d:right, top:d:bottom)';
 I2 = histcounts2(x2, y2, left:d:right, top:d:bottom)';
 
 
 [X, Y] = meshgrid(left+d/2:d:right-d/2, top+d/2:d:bottom-d/2);
-%mask = inpolygon(X,Y,spacewin.x, spacewin.y);
 mask = spacewin_isinside(X(:),Y(:),spacewin);
 mask = reshape(mask, size(X));
 
@@ -79,8 +100,10 @@ switch type
         I2_densfact = mean(I2(logical(mask(:))));
         
         
-        gamma = ratblur./edgem2/I2_densfact/I1_densfact; %.* m2./edgem2/d^2;
+        gamma = ratblur./edgem2/I2_densfact/I1_densfact;
         gamma(~mask2) = 0;
+    otherwise
+        error('spatial_gradient_correction: unknown edge correction type ''%s''', type);
 end
 
 
@@ -93,64 +116,3 @@ for i=1:numel(r)
     gm(i) = mean(gamma(inds));
 end
 gm = gm';
-
-
-
-
-
-
-
-
-
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% 
-% res = r(2)-r(1);
-% 
-% 
-% dims = [256 512]; 
-% mask = res_specs.mask;
-% 
-% % filter for blur
-% g_filt = fspecial('gaussian',300, 32);
-% 
-% movies = 1:numel(alignment_data1.alldata_track);
-% data_slice = alignment_data1.alldata_raw(movies); 
-% [scrap Ctot_raw1]=generate_STORM_image_MBS(data_slice, res, s, dims);
-% I1 = Ctot_raw1;
-% 
-% data_slice = alignment_data2.alldata_raw(movies); 
-% [scrap Ctot_raw2]=generate_STORM_image_MBS(data_slice, res, s, dims);
-% I2 = Ctot_raw2;
-% 
-% % I1_f= (imfilter(mask.*I1, g_filt));
-% % I2_f= (imfilter(mask.*I2, g_filt));
-% 
-% I1_f= mask.*(imfilter(mask.*I1, g_filt))./imfilter(double(mask), g_filt);
-% I1_f(isnan(I1_f(:))) = 0;
-% I1_fudgefact = mean(I1_f(logical(mask(:))))/mean(I1(logical(mask(:))));
-% I1_densfact = mean(I1_f(logical(mask(:))));
-% 
-% I2_f= mask.*(imfilter(mask.*I2, g_filt))./imfilter(double(mask), g_filt);
-% I2_f(isnan(I2_f(:))) = 0;
-% I2_fudgefact = mean(I2_f(logical(mask(:))))/mean(I2(logical(mask(:))));
-% I2_densfact = mean(I2_f(logical(mask(:))));
-% 
-% L1 = size(I1_f, 1);
-% L2 = size(I1_f, 2);
-% 
-% N4 = (1/I2_densfact)*(1/I1_densfact)*fftshift(ifft2(fft2(I1_f, 2*L1+1, 2*L2+1).*conj(fft2(I2_f, 2*L1+1, 2*L2+1))))*I1_fudgefact.*I2_fudgefact;
-% 
-% normalize = sum(sum(mask));
-% 
-% NP_norm = N4/normalize;
-% 
-% [~, rad_ave_NP_edge]  = radial_average_EM_int(NP_norm,ceil(rmax/res),(rbinsize/res),0);
-% XCor_norm = rad_ave_NP_edge(1:end-1);
-% 

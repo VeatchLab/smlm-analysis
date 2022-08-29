@@ -13,9 +13,6 @@ precision, or "localization spread function" of the SMLM analysis pipeline.
 
 We have developed these tools largely in tandem with two manuscripts:
 
-
-Shaw, T. R. et al. Estimating the localization spread function of static single-molecule localization microscopy images. Biophysical Journal 121, 2906–2920 (2022).
-
 TR Shaw, FJ Fazekas, S Kim, JC Flanagan-Natoli, ER Sumrall, SL Veatch. 2022.
 Estimating the localization spread function of static single-molecule
 localization microscopy images. *Biophys J* 121, 2906-2920. 

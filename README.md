@@ -84,5 +84,5 @@ There is an example LSF estimation script in `src/example/example_NPC.m`,
 based on the NPC dataset from Shaw et al 2022.  Follow along with that to learn
 how to use the LSF estimation code.
 
-Scripts to replicate three of the figures of Shelby et al 2022 are also included,
+Scripts to replicate four of the figures of Shelby et al 2022 are also included,
 under `src/example/xcor-protocol-figs/`.

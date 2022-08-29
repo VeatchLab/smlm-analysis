@@ -13,10 +13,13 @@ precision, or "localization spread function" of the SMLM analysis pipeline.
 
 We have developed these tools largely in tandem with two manuscripts:
 
-TR Shaw, FJ Fazekas, S Kim, JC Flanagan-Natoli, ER Sumrall, SL Veatch.
-A method to estimate the effective point spread function of static single
-molecule localization microscopy images. Biorxiv. 2022.03.05.483117;
-[doi:10.1101/2022.03.05.483117](https://www.biorxiv.org/content/10.1101/2022.03.05.483117v1).
+
+Shaw, T. R. et al. Estimating the localization spread function of static single-molecule localization microscopy images. Biophysical Journal 121, 2906–2920 (2022).
+
+TR Shaw, FJ Fazekas, S Kim, JC Flanagan-Natoli, ER Sumrall, SL Veatch. 2022.
+Estimating the localization spread function of static single-molecule
+localization microscopy images. *Biophys J* 121, 2906-2920. 
+[doi:10.1016/j.bpj.2022.06.036](https://doi.org/10.1016/j.bpj.2022.06.036)
 
 SA Shelby, TR Shaw, SL Veatch.
 Measuring the co-localization and dynamics of mobile proteins in live cells

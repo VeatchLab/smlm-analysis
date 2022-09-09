@@ -19,6 +19,9 @@ function [out, params] = spacetime_resolution(varargin)
 %                               than nm.
 %               'Bootstrap' (default: false): Generate a bootstrapped confidence interval by resampling the
 %                               data. This is off by default because it takes a considerable amount of time.
+%               'TEdgeMethod', 'actual' or 'unif' (default: 'actual'): 
+%                               'actual': use density correction in the time edge correction.
+%                               'unif': assume uniform rate of localizations/frame
 
 % Copyright (C) 2021 Thomas Shaw, and Sarah Veatch
 % This file is part of SMLM SPACETIME RESOLUTION
@@ -288,6 +291,7 @@ p.addParameter('NTauBin', 10, @(x) isnumeric(x) && isscalar(x))
 p.addParameter('TauEdges', [], @(x) isnumeric(x) && issorted(x))
 p.addParameter('SigmaStartpoint', 10, @(x) isnumeric(x) && isscalar(x))
 p.addParameter('Bootstrap', false)
+p.addParameter('TEdgeMethod', 'actual');
 %TODO: add more
 
 p.parse(args{:});

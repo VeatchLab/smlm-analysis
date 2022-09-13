@@ -120,8 +120,10 @@ g_diff_norm = g_diff./g_diff(1, :);
 %sigma startpoint is an optional parameter
 startpoint = [1 params.SigmaStartpoint];
 fitpts = r<100;
+sigma_lower_bound = sum(r([1 2]))/2; % set lower bound for sigma at upper edge of smallest radial bin
 for i=1:size(g_diff_norm, 2)
-    F = fit(r(fitpts)', g_diff_norm(fitpts, i), 'A*exp(-x.^2/4/s^2)', 'startpoint', startpoint, 'lower', [0 5]);
+    F = fit(r(fitpts)', g_diff_norm(fitpts, i), 'A*exp(-x.^2/4/s^2)',...
+            'startpoint', startpoint, 'lower', [0 sigma_lower_bound]);
     s(i) = F.s;
     ci = diff(confint(F, .68));
     

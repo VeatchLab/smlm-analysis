@@ -21,29 +21,20 @@ if ~timewin_isvalid(timewin) || size(timewin,1) > 1
     error('time_edge_correction_single: invalid time window provided');
 end
 
-timevec = sort(unique(t));
+ts = sort(unique(t));
+dt = min(diff(ts));
+tbinedges = (min(ts) - dt/2):dt:(max(ts) + dt);
 %fprintf('There are %f times as many points as unique times\n', numel(t)/numel(timevec));
 
-Nperframe = arrayfun(@(tt) sum(t == tt), timevec);
+Nperframe = histcounts(t, tbinedges);
 
-tmax = numel(timevec);
-
-timediffs = zeros(tmax*(tmax-1)/2, 1);
-weights = zeros(tmax*(tmax-1)/2, 1);
-count = 1;
-for i = 1:tmax-1
-    for j = i:tmax
-        timediffs(count) = timevec(j) - timevec(i);
-        weights(count) = Nperframe(i)*Nperframe(j);
-        count = count + 1;
-    end
-end
-
-dtau = diff(tau_edges);
+weights = conv(Nperframe, fliplr(Nperframe));
+nt = round((max(ts) - min(ts))/dt);
+timediffs = (-nt:nt)*dt;
 
 [~, ~, bin] = histcounts(timediffs, tau_edges);
 inds = bin>0;
-exptauperbin = accumarray(bin(inds), weights(inds)',[ntout,1])./dtau(:);
+exptauperbin = accumarray(bin(inds)', weights(inds),[ntout,1])/dt;
 
 norm = numel(t)^2 / timewin_duration(timewin);
 taufactor = exptauperbin'/norm;

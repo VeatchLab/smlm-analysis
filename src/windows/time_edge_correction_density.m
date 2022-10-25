@@ -21,6 +21,11 @@ if ~timewin_isvalid(timewin)
     error('time_edge_correction: invalid time window provided');
 end
 
+if size(timewin,1) == 1 %special case for single chunk of data (faster algorithm)
+    [taufactor,norm] = time_edge_correction_single(t,tau_edges,timewin);
+    return
+end
+
 timevec = sort(unique(t));
 %fprintf('There are %f times as many points as unique times\n', numel(t)/numel(timevec));
 

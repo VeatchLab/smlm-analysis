@@ -11,7 +11,7 @@ end
 
 if isempty(t) % only x and y matter
     % pick whichever has the wider range
-    ind = double(max(x) - min(x)) < (max(y) - min(y)) + 1;
+    ind = double((max(x) - min(x)) < (max(y) - min(y))) + 1;
 else 
     % get naive expected number of comparisons for each direction
     xprs = 2*rmax/(max(x) - min(x));
